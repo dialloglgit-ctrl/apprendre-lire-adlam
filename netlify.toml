@@ -10,3 +10,4 @@
   from = "/*"
   to = "/.netlify/functions/django"
   status = 200
+  force = true
