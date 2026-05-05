@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{% tr 'nav.tools' %} – PROMET{% endblock %}
+
+{% block contenu %}
+<div>
+  <h1 class="section-title">{% tr 'nav.tools' %}</h1>
+  <p class="section-subtitle">Traduction, translittération Adlam et correction automatique.</p>
+</div>
+
+<!-- Onglets -->
+<div class="filter-tabs" id="outils-tabs">
+  <button class="filter-tab active" data-tab="traduction">🌐 Traduction</button>
+  <button class="filter-tab" data-tab="translit">𞤀𞤁𞤂 Translittération</button>
+  <button class="filter-tab" data-tab="correction">🤖 Correction IA</button>
+</div>
+
+<!-- ── Onglet Traduction ─────────────────────────────────────────────────────── -->
+<div id="tab-traduction" class="tool-panel">
+  <div class="card">
+    <h2 style="margin-bottom:1rem">Français / Anglais → Pulaar Adlam</h2>
+    <div style="display:flex;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap">
+      <label style="font-weight:700">Langue source :</label>
+      <label><input type="radio" name="trad-lang" value="fr" checked> Français</label>
+      <label><input type="radio" name="trad-lang" value="en"> English</label>
+    </div>
+    <textarea id="trad-input" class="free-write-textarea"
+      rows="3" placeholder="Entrez du texte en français ou en anglais…"
+      style="margin-bottom:.75rem"></textarea>
+    <button class="btn btn-primary" id="btn-traduire">Traduire →</button>
+
+    <div id="trad-result" style="display:none;margin-top:1.25rem">
+      <div class="result-row">
+        <div class="result-label">Pulaar (latin)</div>
+        <div class="result-value" id="trad-pul-latin" dir="ltr" style="text-align:left"></div>
+      </div>
+      <div class="result-row" style="margin-top:.75rem">
+        <div class="result-label">Pulaar (Adlam)</div>
+        <div class="result-value adlam-text" id="trad-pul-adlam" dir="rtl"
+             style="font-size:1.4rem"></div>
+      </div>
+      <div class="result-row" style="margin-top:.5rem">
+        <div class="result-label">Couverture</div>
+        <div class="result-value" id="trad-coverage"></div>
+      </div>
+      <div id="trad-tokens" style="margin-top:1rem"></div>
+    </div>
+  </div>
+
+  <!-- Mini-dictionnaire -->
+  <div class="card" style="margin-top:1rem">
+    <h2 style="margin-bottom:.75rem">Dictionnaire de base
+      <small style="font-weight:400;font-size:.85rem;color:var(--text-muted)"> — cliquez sur un mot</small>
+    </h2>
+    <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+      <input type="text" id="dict-search" class="answer-input"
+             style="flex:1;font-size:.9rem" placeholder="Rechercher un mot…">
+    </div>
+    <div id="dict-grid" class="alphabet-grid" style="gap:.4rem"></div>
+  </div>
+</div>
+
+<!-- ── Onglet Translittération ───────────────────────────────────────────────── -->
+<div id="tab-translit" class="tool-panel" style="display:none">
+  <div class="card">
+    <h2 style="margin-bottom:1rem">Conversion Latin Pulaar ↔ Script Adlam</h2>
+    <div style="display:flex;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap">
+      <label style="font-weight:700">Direction :</label>
+      <label><input type="radio" name="translit-sens" value="auto" checked> Auto-détection</label>
+      <label><input type="radio" name="translit-sens" value="latin_to_adlam"> Latin → Adlam</label>
+      <label><input type="radio" name="translit-sens" value="adlam_to_latin"> Adlam → Latin</label>
+    </div>
+    <textarea id="translit-input" class="free-write-textarea"
+      rows="3" placeholder="Tapez du latin Pulaar ou collez de l'Adlam…"
+      style="margin-bottom:.75rem"></textarea>
+
+    <!-- Clavier Adlam intégré -->
+    <details style="margin-bottom:.75rem">
+      <summary class="btn btn-outline btn-sm" style="cursor:pointer;display:inline-block">
+        𞤀𞤁𞤂 Clavier Adlam
+      </summary>
+      <div style="margin-top:.5rem">
+        <div id="clavier-translit" class="adlam-keyboard"></div>
+      </div>
+    </details>
+
+    <button class="btn btn-primary" id="btn-transliterer">Convertir →</button>
+
+    <div id="translit-result" style="display:none;margin-top:1.25rem">
+      <div class="result-row">
+        <div class="result-label" id="translit-direction-label">Résultat</div>
+        <div class="result-value" id="translit-output" style="font-size:1.3rem;font-family:var(--adlam-font)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table de correspondance -->
+  <div class="card" style="margin-top:1rem">
+    <h2 style="margin-bottom:.75rem">Table de correspondance Adlam</h2>
+    <div class="alphabet-grid" id="translit-table" style="gap:.4rem"></div>
+  </div>
+</div>
+
+<!-- ── Onglet Correction IA ──────────────────────────────────────────────────── -->
+<div id="tab-correction" class="tool-panel" style="display:none">
+  <div class="card">
+    <h2 style="margin-bottom:1rem">Correction automatique en Adlam / Pulaar</h2>
+    <div class="form-group">
+      <label>Votre réponse (Adlam ou latin Pulaar)</label>
+      <input type="text" id="corr-reponse" class="answer-input adlam-input" dir="rtl"
+             placeholder="Tapez votre réponse…" style="margin-top:.35rem">
+    </div>
+    <div class="form-group" style="margin-top:.75rem">
+      <label>Réponse attendue (référence)</label>
+      <input type="text" id="corr-attendu" class="answer-input adlam-input" dir="rtl"
+             placeholder="La réponse correcte…" style="margin-top:.35rem">
+    </div>
+    <button class="btn btn-primary" id="btn-corriger" style="margin-top:.75rem">Corriger →</button>
+
+    <div id="corr-result" class="feedback-panel" style="margin-top:1rem"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/clavier_adlam.js' %}"></script>
+<script src="{% static 'js/outils.js' %}"></script>
+{% endblock %}

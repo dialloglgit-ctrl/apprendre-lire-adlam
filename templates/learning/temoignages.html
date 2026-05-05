@@ -1,0 +1,75 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block titre %}Témoignages | PROMET{% endblock %}
+
+{% block contenu %}
+<section class="info-page">
+  <div class="info-hero">
+    <div>
+      <span class="books-kicker">⭐ Témoignages</span>
+      <h1>Ce qu'ils en pensent</h1>
+      <p>Découvrez les avis d'apprenants de la communauté PROMET à travers le monde.</p>
+    </div>
+    <div class="books-hero-card">
+      <div class="books-hero-icon">🗣️</div>
+      <strong>Communauté mondiale</strong>
+      <span>Des apprenants de partout partagent leur expérience.</span>
+    </div>
+  </div>
+
+  <div class="info-content">
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="temoignages-grid">
+      {% for t in temoignages %}
+      <article class="temoignage-card">
+        <div class="temoignage-stars">
+          {% for i in "12345" %}{% if forloop.counter <= t.note %}★{% else %}☆{% endif %}{% endfor %}
+        </div>
+        <p class="temoignage-msg">{{ t.message }}</p>
+        <footer class="temoignage-auteur">
+          <strong>{{ t.nom }}</strong>{% if t.pays %} · {{ t.pays }}{% endif %}
+        </footer>
+      </article>
+      {% empty %}
+      <p class="info-empty">Soyez le premier à laisser un témoignage !</p>
+      {% endfor %}
+    </div>
+
+    <div class="temoignage-form-wrap">
+      <h2>Laisser un témoignage</h2>
+      <form method="post" class="contact-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="nom">Votre nom</label>
+          <input type="text" id="nom" name="nom" required maxlength="100">
+        </div>
+        <div class="form-group">
+          <label for="pays">Pays (optionnel)</label>
+          <input type="text" id="pays" name="pays" maxlength="80">
+        </div>
+        <div class="form-group">
+          <label for="note">Note</label>
+          <select id="note" name="note">
+            <option value="5">★★★★★ Excellent</option>
+            <option value="4">★★★★☆ Très bien</option>
+            <option value="3">★★★☆☆ Bien</option>
+            <option value="2">★★☆☆☆ Passable</option>
+            <option value="1">★☆☆☆☆ Décevant</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message">Votre message</label>
+          <textarea id="message" name="message" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn-primary-lg">Envoyer mon témoignage</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

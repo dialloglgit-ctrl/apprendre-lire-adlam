@@ -1,0 +1,12 @@
+[build]
+  command = "python manage.py collectstatic --noinput"
+  publish = "staticfiles"
+  functions = "netlify/functions"
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/django"
+  status = 200

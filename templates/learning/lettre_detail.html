@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{{ lettre.nom }} – Alphabet Adlam{% endblock %}
+
+{% block contenu %}
+<div>
+  <a href="{% url 'alphabet' %}" class="btn btn-outline btn-sm">← {% tr 'common.back_alphabet' %}</a>
+
+  <div class="letter-hero" style="margin-top:1rem">
+    <div class="big-adlam" dir="rtl">{{ lettre.caractere }}</div>
+    <h1>{{ lettre.nom }}</h1>
+    <button class="speak-btn speak-btn-lg"
+            data-audio-url="{% url 'api_audio_lettre' lettre.pk %}"
+            title="Écouter la prononciation" type="button" aria-label="Écouter {{ lettre.nom }}">
+      🔊
+    </button>
+  </div>
+
+  <div class="letter-props">
+    <div class="letter-prop">
+      <div class="letter-prop-label">{% tr 'letter.transliteration' %}</div>
+      <div class="letter-prop-value">{{ lettre.transliteration }}</div>
+    </div>
+    {% if lettre.prononciation %}
+    <div class="letter-prop">
+      <div class="letter-prop-label">{% tr 'letter.pronunciation' %}</div>
+      <div class="letter-prop-value">{{ lettre.prononciation }}</div>
+    </div>
+    {% endif %}
+    {% if lettre.exemple_mot %}
+    <div class="letter-prop">
+      <div class="letter-prop-label">{% tr 'letter.example_adlam' %}</div>
+      <div class="letter-prop-value adlam-text" dir="rtl">{{ lettre.exemple_mot }}</div>
+    </div>
+    {% endif %}
+    {% if lettre.exemple_mot_latin %}
+    <div class="letter-prop">
+      <div class="letter-prop-label">{% tr 'letter.example_latin' %}</div>
+      <div class="letter-prop-value">{{ lettre.exemple_mot_latin }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if lettre.audio %}
+  <div class="card" style="margin-bottom:1rem">
+    <audio controls class="audio-player" style="width:100%">
+      <source src="{{ lettre.audio.url }}" type="audio/mpeg">
+    </audio>
+  </div>
+  {% endif %}
+
+  {% if lettre.lecons.all %}
+  <div class="card">
+    <h2 style="margin-bottom:.75rem">{% tr 'letter.lessons_using' %}</h2>
+    {% for lecon in lettre.lecons.all %}
+    <a href="{% url 'lecon_detail' lecon.pk %}" class="exercise-list-item" style="margin-bottom:.5rem">
+      <div class="exercise-type-icon">📚</div>
+      <div>
+        <div style="font-weight:800">{{ lecon.titre }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

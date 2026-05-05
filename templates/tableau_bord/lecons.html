@@ -1,0 +1,22 @@
+{% extends 'tableau_bord/liste_base.html' %}
+{% block table %}
+<table class="wp-table">
+  <thead><tr><th>#</th><th>Titre</th><th>Niveau</th><th>Exercices</th><th>Créée le</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for l in lecons %}
+    <tr>
+      <td style="color:#8c8f94">{{ l.pk }}</td>
+      <td style="font-weight:700"><a class="action-link" href="/admin/learning/lecon/{{ l.pk }}/change/">{{ l.titre }}</a></td>
+      <td><span class="badge-niveau badge-{{ l.niveau }}">{{ l.niveau }}</span></td>
+      <td>{{ l.exercices.count }}</td>
+      <td style="color:#8c8f94;font-size:.78rem">{{ l.creee_le|date:"d/m/Y" }}</td>
+      <td>
+        <a class="action-link" href="/admin/learning/lecon/{{ l.pk }}/change/">Modifier</a>
+        <a class="action-link" href="/lecons/{{ l.pk }}/">Voir</a>
+      </td>
+    </tr>
+    {% empty %}<tr><td colspan="6" class="empty-msg">Aucune leçon</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'tableau_bord/liste_base.html' %}
+{% block table %}
+<style>
+.vid-thumb{width:80px;height:50px;object-fit:cover;border-radius:4px;background:#0f172a}
+.vid-thumb-placeholder{width:80px;height:50px;border-radius:4px;background:#1e293b;display:inline-flex;align-items:center;justify-content:center;color:#94a3b8;font-size:1.3rem}
+.badge-cat{border-radius:999px;padding:.2rem .6rem;font-size:.7rem;font-weight:700}
+.badge-alphabet{background:#dbeafe;color:#1e40af}
+.badge-lecon{background:#dcfce7;color:#166534}
+.badge-culture{background:#ede9fe;color:#6d28d9}
+.badge-autre{background:#fef3c7;color:#92400e}
+.badge-publie{background:#dcfce7;color:#166534}
+.badge-masque{background:#fef2f2;color:#991b1b}
+.vid-filters{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}
+.vid-filter-btn{border:1px solid #dcdcde;background:#fff;border-radius:6px;padding:.3rem .75rem;font-size:.78rem;cursor:pointer;font-weight:600;color:#1d2327;text-decoration:none}
+.vid-filter-btn.active,.vid-filter-btn:hover{background:#2271b1;color:#fff;border-color:#2271b1}
+</style>
+
+<!-- Filtres catégorie -->
+<div class="vid-filters">
+  <a class="vid-filter-btn {% if not categorie %}active{% endif %}"
+     href="?{% if q %}q={{ q }}&{% endif %}">Toutes</a>
+  {% for code, label in cat_choices %}
+  <a class="vid-filter-btn {% if categorie == code %}active{% endif %}"
+     href="?{% if q %}q={{ q }}&{% endif %}categorie={{ code }}">{{ label }}</a>
+  {% endfor %}
+  <a class="vid-filter-btn {% if publie == '1' %}active{% endif %}"
+     href="?{% if q %}q={{ q }}&{% endif %}publie=1">✅ Publiées</a>
+  <a class="vid-filter-btn {% if publie == '0' %}active{% endif %}"
+     href="?{% if q %}q={{ q }}&{% endif %}publie=0">🚫 Masquées</a>
+</div>
+
+<table class="wp-table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th></th>
+      <th>Titre</th>
+      <th>Catégorie</th>
+      <th>Niveau</th>
+      <th>Leçon liée</th>
+      <th>Statut</th>
+      <th>Ajoutée le</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in videos %}
+    <tr>
+      <td style="color:#8c8f94">{{ v.pk }}</td>
+      <td>
+        {% if v.miniature_auto %}
+          <img class="vid-thumb" src="{{ v.miniature_auto }}" alt="" loading="lazy">
+        {% else %}
+          <div class="vid-thumb-placeholder">▶</div>
+        {% endif %}
+      </td>
+      <td style="font-weight:700;max-width:260px">
+        <a class="action-link" href="{{ v.url }}" target="_blank" rel="noopener">{{ v.titre }}</a>
+      </td>
+      <td><span class="badge-cat badge-{{ v.categorie }}">{{ v.get_categorie_display }}</span></td>
+      <td><span class="badge-niveau badge-{{ v.niveau }}">{{ v.niveau }}</span></td>
+      <td style="color:#646970;font-size:.78rem">{{ v.lecon.titre|default:"—" }}</td>
+      <td>
+        {% if v.publie %}
+          <span class="badge-cat badge-publie">✅ Publiée</span>
+        {% else %}
+          <span class="badge-cat badge-masque">🚫 Masquée</span>
+        {% endif %}
+      </td>
+      <td style="color:#8c8f94;font-size:.78rem">{{ v.date_ajout|date:"d/m/Y" }}</td>
+      <td>
+        <a class="action-link" href="{% url 'tb_video_modifier' v.pk %}">Modifier</a>
+        <a class="action-link" href="{{ v.url }}" target="_blank" rel="noopener">▶ Voir</a>
+        <form method="post" action="{% url 'tb_video_supprimer' v.pk %}" style="display:inline"
+              onsubmit="return confirm('Supprimer « {{ v.titre }} » ?')">
+          {% csrf_token %}
+          <button type="submit" class="action-del" style="background:none;border:0;cursor:pointer;font-size:.78rem">Supprimer</button>
+        </form>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="9" class="empty-msg">Aucune vidéo — <a class="action-link" href="{% url 'tb_video_ajouter' %}">Ajouter la première</a></td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

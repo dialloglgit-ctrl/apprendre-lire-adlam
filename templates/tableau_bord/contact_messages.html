@@ -1,0 +1,31 @@
+﻿{% extends 'tableau_bord/liste_base.html' %}
+{% block page_title %}Messages de contact{% endblock %}
+{% block page_header %}Messages de contact{% endblock %}
+{% block list_content %}
+<div class="wp-list-meta">{{ msgs.count }} message{{ msgs.count|pluralize }} — {{ non_lus }} non lu{{ non_lus|pluralize }}</div>
+<div class="wp-card">
+  <table class="wp-table">
+    <thead><tr><th>#</th><th>Nom</th><th>Email</th><th>Sujet</th><th>Date</th><th>Lu</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for m in msgs %}
+    <tr style="{% if not m.lu %}background:#fffbe6{% endif %}">
+      <td>{{ m.pk }}</td>
+      <td>{{ m.nom }}</td>
+      <td><a href="mailto:{{ m.email }}">{{ m.email }}</a></td>
+      <td>{{ m.sujet }}</td>
+      <td>{{ m.date|date:"d/m/Y H:i" }}</td>
+      <td>{% if m.lu %}✅{% else %}<span style="color:#ca4a1f;font-weight:700">Non</span>{% endif %}</td>
+      <td>
+        {% if not m.lu %}
+        <form method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="marquer_lu"><input type="hidden" name="pk" value="{{ m.pk }}"><button class="btn-row-edit">Marquer lu</button></form>
+        {% endif %}
+        <form method="post" style="display:inline" onsubmit="return confirm('Supprimer ce message ?')">{% csrf_token %}<input type="hidden" name="action" value="supprimer"><input type="hidden" name="pk" value="{{ m.pk }}"><button class="btn-row-del">Suppr.</button></form>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7" style="text-align:center;color:#8c8f94;padding:2rem">Aucun message reçu.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

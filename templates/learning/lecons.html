@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{% tr 'lessons.title' %} - PROMET{% endblock %}
+
+{% block contenu %}
+<div class="section-title">{% tr 'lessons.title' %}</div>
+<div class="section-subtitle">Progressez pas à pas, du débutant à l'avancé.</div>
+
+<div class="filter-tabs">
+  <a href="{% url 'lecons' %}" class="filter-tab {% if not niveau_actif %}active{% endif %}">{% tr 'lessons.all' %}</a>
+  {% for val, label in niveaux %}
+  <a href="?niveau={{ val }}" class="filter-tab {% if niveau_actif == val %}active{% endif %}">{{ val|level_label:ui_lang }}</a>
+  {% endfor %}
+</div>
+
+<div class="lesson-grid">
+  {% for lecon in lecons %}
+  <a href="{% url 'lecon_detail' lecon.pk %}" class="lesson-card {% if lecon.pk in terminees_ids %}done{% endif %}">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+      <span class="badge badge-{{ lecon.niveau }}">{{ lecon.niveau|level_label:ui_lang }}</span>
+      {% if lecon.pk in terminees_ids %}<span style="font-size:1.2rem">✅</span>{% endif %}
+    </div>
+    <h3>{{ lecon.titre }}</h3>
+    <p>{{ lecon.description|truncatechars:100 }}</p>
+    <span class="btn btn-primary btn-sm" style="align-self:flex-start;margin-top:auto">{% tr 'lessons.view' %}</span>
+  </a>
+  {% empty %}
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <p>{% tr 'lessons.none' %}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

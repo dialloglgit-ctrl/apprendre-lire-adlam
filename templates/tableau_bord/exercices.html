@@ -1,0 +1,22 @@
+{% extends 'tableau_bord/liste_base.html' %}
+{% block table %}
+<table class="wp-table">
+  <thead><tr><th>#</th><th>Question</th><th>Type</th><th>Niveau</th><th>Leçon</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for e in exercices %}
+    <tr>
+      <td style="color:#8c8f94">{{ e.pk }}</td>
+      <td>{{ e.question|truncatechars:50 }}</td>
+      <td><code style="background:#f0f0f1;padding:.15rem .4rem;border-radius:4px;font-size:.78rem">{{ e.type_exercice }}</code></td>
+      <td><span class="badge-niveau badge-{{ e.niveau }}">{{ e.niveau }}</span></td>
+      <td style="color:#646970;font-size:.8rem">{{ e.lecon.titre|default:"—"|truncatechars:22 }}</td>
+      <td>
+        <a class="action-link" href="/admin/learning/exercice/{{ e.pk }}/change/">Modifier</a>
+        <a class="action-link" href="/exercices/{{ e.pk }}/">Essayer</a>
+      </td>
+    </tr>
+    {% empty %}<tr><td colspan="6" class="empty-msg">Aucun exercice</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

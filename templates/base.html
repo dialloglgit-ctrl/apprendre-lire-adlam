@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+{% load static %}
+{% load ui_tags %}
+<html lang="{{ ui_lang }}" dir="{{ ui_dir }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#58cc02">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>{% block titre %}{% tr 'site.title' %}{% endblock %}</title>
+  <link rel="manifest" href="{% url 'pwa_manifest' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% if ui_lang == 'ar' %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {% endif %}
+</head>
+<body>
+
+<div class="app-bg-shape app-bg-shape-a"></div>
+<div class="app-bg-shape app-bg-shape-b"></div>
+
+<header class="navbar">
+  <div class="navbar-brand">
+    <a href="{% url 'accueil' %}">
+      <span class="adlam-logo">𞤆𞤪𞤮𞤥𞤫𞤼</span>
+      <span class="brand-text">PROMET</span>
+    </a>
+  </div>
+  <nav class="navbar-links">
+    <a href="{% url 'alphabet' %}">{% tr 'nav.alphabet' %}</a>
+    <a href="{% url 'lecons' %}">{% tr 'nav.lessons' %}</a>
+    <a href="{% url 'exercices' %}">{% tr 'nav.exercises' %}</a>
+    <a href="{% url 'dictee' %}">{% tr 'nav.dictation' %}</a>
+    <a href="{% url 'outils' %}">{% tr 'nav.tools' %}</a>
+    <a href="{% url 'videos' %}">Vidéos</a>
+    <a href="{% url 'livres' %}">{% tr 'nav.books' %}</a>
+    <a href="{% url 'boutique' %}">{% tr 'nav.shop' %}</a>
+    <a href="{% url 'apprendre_ia' %}" class="btn-ia-learn" title="Apprendre le Pulaar avec l'IA">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+        <circle cx="12" cy="8" r="5"/>
+        <path d="M9 8h6M12 5v6"/>
+        <path d="M5 20a7 7 0 0114 0"/>
+        <circle cx="5" cy="13" r="2"/>
+        <circle cx="19" cy="13" r="2"/>
+      </svg>
+      {% tr 'nav.ia_learn' %}
+    </a>
+
+    <div class="lang-switch">
+      {% for language in supported_langs %}
+      <a href="{% url 'set_language' language.code %}?next={{ request.path }}"
+         class="lang-pill {% if ui_lang == language.code %}active{% endif %}"
+         title="{{ language.label }}">{{ language.script }}</a>
+      {% endfor %}
+    </div>
+
+    {% if user.is_authenticated %}
+      <a href="{% url 'profil' %}" class="btn-profil">{{ user.username }}</a>
+      <a href="{% url 'deconnexion' %}" class="btn-connexion">{% tr 'nav.logout' %}</a>
+    {% else %}
+      <a href="{% url 'connexion' %}" class="btn-connexion">{% tr 'nav.login' %}</a>
+      <a href="{% url 'inscription' %}" class="btn-inscription">{% tr 'nav.signup' %}</a>
+    {% endif %}
+    <button id="dark-toggle-btn" class="dark-toggle" title="Changer le thème">🌙</button>
+  </nav>
+
+  <div class="search-wrap-outer">
+    <div class="search-bar-wrap">
+      <span class="search-ico">🔍</span>
+      <input id="global-search-input" type="search" placeholder="Rechercher…" autocomplete="off" aria-label="Recherche globale">
+    </div>
+    <div id="search-dropdown" class="search-results-dropdown" style="display:none"></div>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<main class="container">
+  {% if messages %}
+    <div class="messages">
+      {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% block contenu %}{% endblock %}
+</main>
+
+<nav class="mobile-tabbar" aria-label="Navigation mobile">
+  <a href="{% url 'accueil' %}">🏠 <span>{% tr 'mobile.home' %}</span></a>
+  <a href="{% url 'lecons' %}">📚 <span>{% tr 'mobile.learn' %}</span></a>
+  <a href="{% url 'livres' %}">📘 <span>{% tr 'mobile.books' %}</span></a>
+  <a href="{% url 'boutique' %}">🛒 <span>{% tr 'mobile.shop' %}</span></a>
+  <a href="{% url 'exercices' %}">🎯 <span>{% tr 'mobile.practice' %}</span></a>
+  <a href="{% url 'dictee' %}">✍️ <span>{% tr 'mobile.write' %}</span></a>
+  <a href="{% if user.is_authenticated %}{% url 'profil' %}{% else %}{% url 'connexion' %}{% endif %}">👤 <span>{% tr 'mobile.account' %}</span></a>
+</nav>
+
+<footer class="footer">
+  <p>PROMET &copy; 2026 - {% tr 'footer.tagline' %}</p>
+  <p style="margin-top:.35rem;font-size:.8rem">
+    Développé par <strong>Ibrahima Garki Diallo</strong> &mdash;
+    <a href="mailto:garkidi3@gmail.com" style="color:var(--duo-green)">garkidi3@gmail.com</a>
+  </p>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/audio.js' %}"></script>
+<script>
+  window.PROMET_API_BASE_URL = "{{ api_base_url|default:''|escapejs }}";
+</script>
+{% block extra_scripts %}{% endblock %}
+{% block extra_js %}{% endblock %}
+</body>
+</html>

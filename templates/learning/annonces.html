@@ -1,0 +1,39 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block titre %}Actualités | PROMET{% endblock %}
+
+{% block contenu %}
+<section class="info-page">
+  <div class="info-hero">
+    <div>
+      <span class="books-kicker">📢 Actualités</span>
+      <h1>Fil d'actualité</h1>
+      <p>Restez informé des dernières nouveautés, mises à jour et annonces de PROMET.</p>
+    </div>
+    <div class="books-hero-card">
+      <div class="books-hero-icon">🔔</div>
+      <strong>Restez informé</strong>
+      <span>Consultez régulièrement pour ne rien manquer.</span>
+    </div>
+  </div>
+
+  <div class="info-content">
+    {% for annonce in annonces %}
+    <article class="annonce-card annonce-{{ annonce.type }}">
+      <div class="annonce-header">
+        <span class="annonce-badge annonce-badge-{{ annonce.type }}">
+          {% if annonce.type == 'success' %}✅{% elif annonce.type == 'warning' %}⚠️{% elif annonce.type == 'new' %}🆕{% else %}ℹ️{% endif %}
+          {{ annonce.get_type_display }}
+        </span>
+        <time class="annonce-date">{{ annonce.date|date:"d/m/Y" }}</time>
+      </div>
+      <h2 class="annonce-titre">{{ annonce.titre }}</h2>
+      <p class="annonce-contenu">{{ annonce.contenu }}</p>
+    </article>
+    {% empty %}
+    <p class="info-empty">Aucune actualité pour le moment.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

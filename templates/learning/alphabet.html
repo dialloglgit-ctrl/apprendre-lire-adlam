@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{% tr 'alphabet.title' %} - PROMET{% endblock %}
+
+{% block contenu %}
+<div>
+  <h1 class="section-title">{% tr 'alphabet.title' %}</h1>
+  <p class="section-subtitle">{% tr 'alphabet.subtitle' %}</p>
+</div>
+
+<!-- Barre de recherche -->
+<div class="alphabet-search-wrap">
+  <input id="alphabet-search" type="search" class="alphabet-search-input"
+         placeholder="🔍 Rechercher une lettre…" autocomplete="off" aria-label="Rechercher une lettre">
+</div>
+
+<div class="alphabet-grid" id="alphabet-grid">
+  {% for lettre in lettres %}
+  <div class="letter-card-wrap" data-nom="{{ lettre.nom|lower }}"
+       data-latin="{{ lettre.transliteration|lower }}"
+       data-adlam="{{ lettre.caractere }}">
+    <a href="{% url 'lettre_detail' lettre.pk %}" class="letter-card">
+      <span class="letter-adlam-big" dir="rtl">{{ lettre.caractere }}</span>
+      <span class="letter-name">{{ lettre.nom }}</span>
+      <span class="letter-latin">{{ lettre.transliteration }}</span>
+    </a>
+    <button class="speak-btn" data-audio-url="{% url 'api_audio_lettre' lettre.pk %}"
+            title="Écouter {{ lettre.nom }}" type="button" aria-label="Écouter {{ lettre.nom }}">🔊</button>
+  </div>
+  {% empty %}
+  <p class="card">{% tr 'alphabet.empty' %}</p>
+  {% endfor %}
+</div>
+<p class="alphabet-search-empty" id="alphabet-empty">Aucune lettre ne correspond.</p>
+
+<script>
+(function(){
+  const input = document.getElementById('alphabet-search');
+  const grid  = document.getElementById('alphabet-grid');
+  const empty = document.getElementById('alphabet-empty');
+  if (!input || !grid) return;
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    let visible = 0;
+    grid.querySelectorAll('.letter-card-wrap').forEach(card => {
+      const match = !q
+        || card.dataset.nom.includes(q)
+        || card.dataset.latin.includes(q)
+        || card.dataset.adlam.includes(q);
+      card.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    empty.style.display = visible === 0 ? 'block' : 'none';
+  });
+})();
+</script>
+{% endblock %}

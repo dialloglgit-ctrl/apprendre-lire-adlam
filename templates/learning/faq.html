@@ -1,0 +1,37 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block titre %}FAQ | PROMET{% endblock %}
+
+{% block contenu %}
+<section class="info-page">
+  <div class="info-hero">
+    <div>
+      <span class="books-kicker">❓ FAQ</span>
+      <h1>Questions fréquentes</h1>
+      <p>Retrouvez les réponses aux questions les plus posées sur PROMET et l'apprentissage de l'Adlam.</p>
+    </div>
+    <div class="books-hero-card">
+      <div class="books-hero-icon">💬</div>
+      <strong>Des réponses claires</strong>
+      <span>Tout ce que vous devez savoir pour démarrer.</span>
+    </div>
+  </div>
+
+  <div class="info-content">
+    {% for cat, items in faqs_par_cat.items %}
+    <div class="faq-section">
+      <h2 class="faq-cat-title">{{ cat }}</h2>
+      {% for faq in items %}
+      <details class="faq-item">
+        <summary class="faq-question">{{ faq.question }}</summary>
+        <div class="faq-answer">{{ faq.reponse }}</div>
+      </details>
+      {% endfor %}
+    </div>
+    {% empty %}
+    <p class="info-empty">Aucune FAQ disponible pour le moment.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

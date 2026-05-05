@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tableau de bord – PROMET Admin</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<style>
+/* ── Reset & base ─────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f0f1;color:#1d2327;min-height:100vh}
+a{color:inherit;text-decoration:none}
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+.wp-sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:#1d2327;overflow-y:auto;z-index:100;transition:transform .3s}
+.wp-brand{padding:1.25rem 1.5rem;border-bottom:1px solid #2c3338;display:flex;align-items:center;gap:.75rem}
+.wp-brand-icon{font-family:'Noto Sans Adlam',serif;font-size:1.8rem;color:#2271b1}
+.wp-brand-name{color:#fff;font-weight:800;font-size:1rem;line-height:1.2}
+.wp-brand-sub{color:#8c8f94;font-size:.72rem}
+.wp-nav{padding:.75rem 0}
+.wp-nav-section{color:#8c8f94;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.6rem 1.5rem .3rem}
+.wp-nav a{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.5rem;color:#c3c4c7;font-size:.875rem;transition:background .15s,color .15s;position:relative}
+.wp-nav a:hover,.wp-nav a.active{background:#2c3338;color:#72aee6}
+.wp-nav a.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#2271b1;border-radius:0 3px 3px 0}
+.wp-nav .nav-ico{width:20px;text-align:center;flex-shrink:0;font-size:1rem}
+.wp-nav .nav-badge{margin-left:auto;background:#ca4a1f;color:#fff;border-radius:999px;padding:1px 7px;font-size:.7rem;font-weight:700}
+.wp-sidebar-footer{padding:1rem 1.5rem;border-top:1px solid #2c3338;color:#8c8f94;font-size:.75rem}
+/* ── Main wrapper ─────────────────────────────────────────────────────────── */
+.wp-main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
+/* ── Topbar ───────────────────────────────────────────────────────────────── */
+.wp-topbar{background:#1d2327;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:90}
+.wp-topbar-left{display:flex;align-items:center;gap:1rem}
+.wp-topbar-title{color:#a7aaad;font-size:.82rem}
+.wp-topbar-right{display:flex;align-items:center;gap:1rem}
+.wp-topbar-right a{color:#a7aaad;font-size:.8rem;padding:.3rem .65rem;border-radius:4px;transition:background .15s}
+.wp-topbar-right a:hover{background:#2c3338;color:#fff}
+.wp-topbar-user{display:flex;align-items:center;gap:.5rem;color:#c3c4c7;font-size:.82rem}
+.wp-topbar-avatar{width:26px;height:26px;border-radius:50%;background:#2271b1;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.75rem}
+/* ── Content ─────────────────────────────────────────────────────────────── */
+.wp-content{flex:1;padding:2rem}
+.wp-page-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;color:#1d2327}
+/* ── Stats cards ─────────────────────────────────────────────────────────── */
+.wp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+@media(max-width:1000px){.wp-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.wp-stats{grid-template-columns:1fr}}
+.stat-card{background:#fff;border-radius:8px;padding:1.25rem 1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid transparent;display:flex;align-items:center;gap:1rem}
+.stat-card.blue  {border-left-color:#2271b1}
+.stat-card.green {border-left-color:#00a32a}
+.stat-card.orange{border-left-color:#dba617}
+.stat-card.red   {border-left-color:#d63638}
+.stat-ico{font-size:2rem;flex-shrink:0}
+.stat-val{font-size:1.75rem;font-weight:900;line-height:1}
+.stat-lbl{font-size:.78rem;color:#646970;margin-top:.2rem}
+/* ── Section 2 colonnes ──────────────────────────────────────────────────── */
+.wp-grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
+@media(max-width:800px){.wp-grid2{grid-template-columns:1fr}}
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.wp-card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow:hidden}
+.wp-card-head{padding:.9rem 1.25rem;border-bottom:1px solid #f0f0f1;display:flex;align-items:center;justify-content:space-between}
+.wp-card-head h3{font-size:.95rem;font-weight:700;color:#1d2327}
+.wp-card-head a{font-size:.78rem;color:#2271b1}
+.wp-card-head a:hover{text-decoration:underline}
+.wp-card-body{padding:1.25rem}
+/* ── Table ────────────────────────────────────────────────────────────────── */
+.wp-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.wp-table th{text-align:left;padding:.55rem .75rem;border-bottom:2px solid #f0f0f1;color:#646970;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
+.wp-table td{padding:.6rem .75rem;border-bottom:1px solid #f0f0f1;color:#1d2327}
+.wp-table tr:last-child td{border-bottom:none}
+.wp-table tr:hover td{background:#f9f9f9}
+.badge-niveau{border-radius:999px;padding:.2rem .65rem;font-size:.7rem;font-weight:700}
+.badge-debutant   {background:#d4edda;color:#155724}
+.badge-intermediaire{background:#fff3cd;color:#856404}
+.badge-avance     {background:#f8d7da;color:#721c24}
+/* ── Liste activité ──────────────────────────────────────────────────────── */
+.activity-list{list-style:none}
+.activity-list li{display:flex;align-items:flex-start;gap:.75rem;padding:.65rem 0;border-bottom:1px solid #f0f0f1;font-size:.85rem}
+.activity-list li:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:#2271b1;flex-shrink:0;margin-top:.35rem}
+.activity-dot.green{background:#00a32a}
+.activity-dot.orange{background:#dba617}
+.activity-time{color:#8c8f94;font-size:.75rem;margin-top:.1rem}
+/* ── Quick actions ───────────────────────────────────────────────────────── */
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.qa-btn{background:#f6f7f7;border:1px solid #dcdcde;border-radius:6px;padding:.8rem 1rem;display:flex;align-items:center;gap:.65rem;font-size:.85rem;font-weight:600;color:#1d2327;cursor:pointer;transition:background .15s,border-color .15s;text-decoration:none}
+.qa-btn:hover{background:#fff;border-color:#2271b1;color:#2271b1}
+.qa-ico{font-size:1.1rem}
+/* ── Progress bar ────────────────────────────────────────────────────────── */
+.prog-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.8rem;font-size:.82rem}
+.prog-label{width:110px;flex-shrink:0;color:#646970;font-weight:600}
+.prog-bar-wrap{flex:1;background:#f0f0f1;border-radius:999px;height:8px;overflow:hidden}
+.prog-bar{height:100%;border-radius:999px;background:#2271b1}
+.prog-val{width:36px;text-align:right;font-weight:700;flex-shrink:0}
+/* ── Notice ──────────────────────────────────────────────────────────────── */
+.wp-notice{background:#fff;border-left:4px solid #00a32a;border-radius:4px;padding:.75rem 1rem;margin-bottom:1.5rem;font-size:.85rem;color:#1d2327}
+.wp-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+@media(max-width:800px){.wp-kpis{grid-template-columns:1fr}}
+.kpi{background:#fff;border-radius:8px;padding:1rem 1.1rem;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.kpi-label{font-size:.75rem;color:#646970;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.kpi-val{font-size:1.35rem;font-weight:900;color:#1d2327;margin-top:.35rem}
+.kpi-sub{font-size:.78rem;color:#2271b1;margin-top:.25rem}
+.wp-alert-list{display:grid;gap:.6rem}
+.wp-alert-item{display:flex;align-items:center;justify-content:space-between;border:1px solid #f0f0f1;border-radius:6px;padding:.6rem .75rem;background:#fcfcfc}
+.wp-alert-item b{color:#1d2327}
+.wp-alert-item .count{font-weight:900;color:#d63638}
+.wp-trend{margin-bottom:.8rem}
+.wp-trend:last-child{margin-bottom:0}
+.wp-trend-head{display:flex;align-items:center;justify-content:space-between;font-size:.8rem;color:#646970;margin-bottom:.4rem}
+.wp-trend-bars{display:flex;align-items:flex-end;gap:.35rem;height:56px;background:#f6f7f7;border-radius:6px;padding:.35rem .45rem}
+.wp-trend-bars span{flex:1;background:#2271b1;border-radius:3px 3px 0 0;min-height:4px;opacity:.9}
+.wp-trend-bars.orange span{background:#dba617}
+.wp-trend-labels{display:grid;grid-template-columns:repeat(7,1fr);margin-top:.35rem;font-size:.65rem;color:#8c8f94;text-align:center}
+.online-row{display:grid;grid-template-columns:190px 1fr 36px;gap:.6rem;align-items:center;margin-bottom:.55rem}
+.online-path{font-size:.78rem;color:#646970;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.online-bar{background:#f0f0f1;border-radius:999px;height:8px;overflow:hidden}
+.online-fill{height:100%;background:#00a32a;border-radius:999px}
+.online-count{font-weight:800;text-align:right;font-size:.8rem}
+.online-users-table td{font-size:.8rem}
+/* ── Responsive sidebar ──────────────────────────────────────────────────── */
+@media(max-width:782px){
+  .wp-sidebar{transform:translateX(-100%)}
+  .wp-sidebar.open{transform:translateX(0)}
+  .wp-main{margin-left:0}
+  .wp-topbar-menu-btn{display:block}
+}
+.wp-topbar-menu-btn{display:none;background:none;border:none;color:#a7aaad;font-size:1.2rem;cursor:pointer;padding:.3rem}
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+<aside class="wp-sidebar" id="sidebar">
+  <div class="wp-brand">
+    <span class="wp-brand-icon">𞤆</span>
+    <div>
+      <div class="wp-brand-name">PROMET Admin</div>
+      <div class="wp-brand-sub">Plateforme Adlam</div>
+    </div>
+  </div>
+
+  <nav class="wp-nav">
+    <div class="wp-nav-section">Principal</div>
+    <a href="{% url 'tableau_bord' %}" class="active">
+      <span class="nav-ico">🏠</span> Tableau de bord
+    </a>
+    <a href="/">
+      <span class="nav-ico">🌐</span> Voir le site
+    </a>
+
+    <div class="wp-nav-section">Contenu</div>
+    <a href="{% url 'tb_lettres' %}">
+      <span class="nav-ico">🔤</span> Lettres Adlam
+      <span class="nav-badge">{{ stats.nb_lettres }}</span>
+    </a>
+    <a href="{% url 'tb_lecons' %}">
+      <span class="nav-ico">📘</span> Leçons
+      <span class="nav-badge">{{ stats.nb_lecons }}</span>
+    </a>
+    <a href="{% url 'tb_exercices' %}">
+      <span class="nav-ico">🎯</span> Exercices
+      <span class="nav-badge">{{ stats.nb_exercices }}</span>
+    </a>
+    <a href="{% url 'tb_videos' %}">
+      <span class="nav-ico">🎬</span> Vidéos
+      <span class="nav-badge">{{ stats.nb_videos }}</span>
+    </a>
+    <a href="{% url 'tb_livres' %}">
+      <span class="nav-ico">📚</span> Livres
+      <span class="nav-badge">{{ stats.nb_livres }}</span>
+    </a>
+    <a href="{% url 'tb_boutique' %}">
+      <span class="nav-ico">🛒</span> Livres à vendre
+      <span class="nav-badge">{{ stats.nb_livres_vendre }}</span>
+    </a>
+
+    <div class="wp-nav-section">Utilisateurs</div>
+    <a href="{% url 'tb_utilisateurs' %}">
+      <span class="nav-ico">👥</span> Utilisateurs
+      <span class="nav-badge">{{ stats.nb_users }}</span>
+    </a>
+    <a href="{% url 'tb_progressions' %}">
+      <span class="nav-ico">📈</span> Progressions
+    </a>
+
+    <div class="wp-nav-section">Système</div>
+    <a href="/admin/">
+      <span class="nav-ico">⚙️</span> Django Admin
+    </a>
+    <a href="{% url 'tb_logout' %}">
+      <span class="nav-ico">🚪</span> Déconnexion
+    </a>
+  </nav>
+
+  <div class="wp-sidebar-footer">
+    PROMET © 2026 · {{ request.user.username }}
+  </div>
+</aside>
+
+<!-- ── Main ────────────────────────────────────────────────────────────── -->
+<div class="wp-main">
+
+  <!-- Topbar -->
+  <div class="wp-topbar">
+    <div class="wp-topbar-left">
+      <button class="wp-topbar-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <span class="wp-topbar-title">PROMET · Tableau de bord</span>
+    </div>
+    <div class="wp-topbar-right">
+      <a href="/">🌐 Site</a>
+      <div class="wp-topbar-user">
+        <div class="wp-topbar-avatar">{{ request.user.username|first|upper }}</div>
+        {{ request.user.username }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu -->
+  <div class="wp-content">
+
+    <div class="wp-notice">
+      👋 Bienvenue, <strong>{{ request.user.username }}</strong>. Voici un aperçu de votre plateforme PROMET.
+    </div>
+
+    <h1 class="wp-page-title">📊 Tableau de bord</h1>
+
+    <!-- Stats -->
+    <div class="wp-stats">
+      <div class="stat-card blue">
+        <div class="stat-ico">👥</div>
+        <div>
+          <div class="stat-val">{{ stats.nb_users }}</div>
+          <div class="stat-lbl">Utilisateurs inscrits</div>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-ico">🎯</div>
+        <div>
+          <div class="stat-val">{{ stats.nb_exercices }}</div>
+          <div class="stat-lbl">Exercices créés</div>
+        </div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-ico">📘</div>
+        <div>
+          <div class="stat-val">{{ stats.nb_lecons }}</div>
+          <div class="stat-lbl">Leçons disponibles</div>
+        </div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-ico">🔤</div>
+        <div>
+          <div class="stat-val">{{ stats.nb_lettres }}</div>
+          <div class="stat-lbl">Lettres Adlam</div>
+        </div>
+      </div>
+      <div class="stat-card blue" style="border-left-color:#7c3aed">
+        <div class="stat-ico">🎬</div>
+        <div>
+          <div class="stat-val">{{ stats.nb_videos }}</div>
+          <div class="stat-lbl"><a href="{% url 'tb_videos' %}" style="color:inherit">Vidéos publiées</a></div>
+        </div>
+      </div>
+      <div class="stat-card orange" style="border-left-color:#92400e">
+        <div class="stat-ico">📚</div>
+        <div>
+          <div class="stat-val">{{ stats.nb_livres }}</div>
+          <div class="stat-lbl"><a href="{% url 'tb_livres' %}" style="color:inherit">Livres publiés</a></div>
+        </div>
+      </div>
+      <div class="stat-card orange" style="border-left-color:#b45309">
+        <div class="stat-ico">🛒</div>
+        <div>
+          <div class="stat-val">{{ stats.nb_livres_vendre }}</div>
+          <div class="stat-lbl"><a href="{% url 'tb_boutique' %}" style="color:inherit">Livres à vendre</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wp-kpis">
+      <div class="kpi">
+        <div class="kpi-label">Comptes créés (7 jours)</div>
+        <div class="kpi-val">{{ stats.users_7d }}</div>
+        <div class="kpi-sub">Croissance des inscriptions</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Leçons publiées (7 jours)</div>
+        <div class="kpi-val">{{ stats.lecons_7d }}</div>
+        <div class="kpi-sub">Rythme de production contenu</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">En ligne maintenant</div>
+        <div class="kpi-val">{{ stats.online_count }}</div>
+        <div class="kpi-sub">Actifs sur les 10 dernières minutes</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Profils progression</div>
+        <div class="kpi-val">{{ stats.nb_progressions }}</div>
+        <div class="kpi-sub">Suivi apprenant disponible</div>
+      </div>
+    </div>
+
+    <div class="wp-grid2">
+
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>🚨 Alertes contenu</h3>
+        </div>
+        <div class="wp-card-body">
+          <div class="wp-alert-list">
+            <div class="wp-alert-item">
+              <b>Leçons sans exercices</b>
+              <span class="count">{{ alerts.lecons_sans_exercices }}</span>
+            </div>
+            <div class="wp-alert-item">
+              <b>Exercices sans leçon</b>
+              <span class="count">{{ alerts.exercices_sans_lecon }}</span>
+            </div>
+            <div class="wp-alert-item">
+              <b>Lettres sans audio</b>
+              <span class="count">{{ alerts.lettres_sans_audio }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>⏱ Activité récente</h3>
+        </div>
+        <div class="wp-card-body">
+          <ul class="activity-list">
+            {% for a in recent_activity %}
+            <li>
+              <span class="activity-dot {% if a.dot == 'green' %}green{% elif a.dot == 'orange' %}orange{% endif %}"></span>
+              <div>
+                <div>{{ a.title }}</div>
+                <div class="activity-time">{{ a.time|timesince }} ago</div>
+              </div>
+            </li>
+            {% empty %}
+            <li><div>Aucune activité récente</div></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="wp-grid2">
+
+      <div class="wp-card">
+        <div class="wp-card-head" style="flex-wrap:wrap;gap:.5rem">
+          <h3>🟢 Où les utilisateurs sont connectés</h3>
+          <span id="online-refresh-badge" style="font-size:.78rem;color:#8c8f94">Actualisation auto toutes les 30s</span>
+          <div style="margin-left:auto;display:flex;gap:.35rem">
+            {% for opt in online_filter_options %}
+            <a href="?online_min={{ opt.value }}"
+               style="padding:.2rem .6rem;border-radius:3px;font-size:.8rem;text-decoration:none;
+                      {% if opt.active %}background:#2271b1;color:#fff{% else %}background:#f0f0f1;color:#1d2327{% endif %}">
+              {{ opt.value }} min
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="wp-card-body" id="online-by-path">
+          {% for row in online_by_path %}
+          <div class="online-row">
+            <div class="online-path" title="{{ row.path }}">{{ row.path }}</div>
+            <div class="online-bar"><div class="online-fill" style="width:{{ row.pct }}%"></div></div>
+            <div class="online-count">{{ row.count }}</div>
+          </div>
+          {% empty %}
+          <div style="color:#8c8f94">Aucun utilisateur connecté actuellement.</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>👤 Utilisateurs connectés maintenant</h3>
+        </div>
+        <div class="wp-card-body" style="padding:0">
+          <table class="wp-table online-users-table">
+            <thead>
+              <tr><th>Utilisateur</th><th>Page</th><th>Dernière activité</th><th>IP</th><th>Localisation</th><th>Appareil</th></tr>
+            </thead>
+            <tbody id="online-users-tbody">
+              {% for p in online_users %}
+              <tr>
+                <td>{{ p.utilisateur.username }}</td>
+                <td style="color:#646970">{{ p.current_path }}</td>
+                <td>{{ p.last_seen|timesince }} ago</td>
+                <td style="color:#8c8f94">{{ p.ip_address|default:"—" }}</td>
+                <td style="color:#8c8f94;font-size:.8rem">{{ p.geo_label }}</td>
+                <td style="text-align:center">{% if p.device_type == 'mobile' %}📱{% elif p.device_type == 'tablet' %}📟{% else %}💻{% endif %}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="6" style="color:#8c8f94;text-align:center;padding:1rem">Aucun utilisateur connecté</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Carte du monde interactive ────────────────────────────────────── -->
+    <div class="wp-card" style="margin-bottom:2rem">
+      <div class="wp-card-head">
+        <h3>🗺️ Carte du monde — Utilisateurs en temps réel</h3>
+        <span id="map-count-badge" style="font-size:.78rem;background:#e8f0fe;color:#2271b1;padding:.2rem .65rem;border-radius:999px;font-weight:700">
+          {{ map_markers|length }} marqueur{{ map_markers|length|pluralize }}
+        </span>
+      </div>
+      <div id="world-map" style="height:340px;background:#eaf3fb;border-radius:0 0 8px 8px"></div>
+    </div>
+
+    <!-- ── Stats appareils (mobile/tablette/desktop) ──────────────────────── -->
+    <div class="wp-grid2" style="margin-bottom:2rem">
+      <div class="wp-card">
+        <div class="wp-card-head"><h3>📱 Appareils utilisés (7 derniers jours)</h3></div>
+        <div class="wp-card-body">
+          {% for d in device_stats %}
+          <div style="margin-bottom:1rem">
+            <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.3rem">
+              <span style="font-weight:600">{{ d.label }}</span>
+              <span style="color:#646970">{{ d.count }} utilisateur{{ d.count|pluralize }} — {{ d.pct }}%</span>
+            </div>
+            <div style="background:#f0f0f1;border-radius:999px;height:10px;overflow:hidden">
+              <div style="height:100%;border-radius:999px;background:{{ d.color }};width:{{ d.pct }}%;transition:width .5s"></div>
+            </div>
+          </div>
+          {% empty %}
+          <div style="color:#8c8f94">Pas encore de données.</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="wp-card">
+        <div class="wp-card-head"><h3>🌍 Pays des utilisateurs connectés</h3></div>
+        <div class="wp-card-body" id="country-list-body">
+          {% regroup online_users by country as country_groups %}
+          {% if online_users %}
+          {% for grp in country_groups %}
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid #f0f0f1;font-size:.84rem">
+            <span>{% if grp.grouper %}{{ grp.grouper }}{% else %}Réseau local / Inconnu{% endif %}</span>
+            <span style="font-weight:800;color:#2271b1">{{ grp.list|length }}</span>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div style="color:#8c8f94">Aucun utilisateur connecté actuellement.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="wp-grid2">
+
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>📈 Tendance inscriptions (7 jours)</h3>
+        </div>
+        <div class="wp-card-body">
+          <div class="wp-trend">
+            <div class="wp-trend-head">
+              <span>Nouveaux comptes</span>
+              <span>Total: {{ stats.users_7d }}</span>
+            </div>
+            <div class="wp-trend-bars">
+              {% for value in trends.users_pct %}
+              <span style="height:{{ value }}%"></span>
+              {% endfor %}
+            </div>
+            <div class="wp-trend-labels">
+              {% for label in trends.labels %}<span>{{ label }}</span>{% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>📝 Tendance leçons (7 jours)</h3>
+        </div>
+        <div class="wp-card-body">
+          <div class="wp-trend">
+            <div class="wp-trend-head">
+              <span>Leçons publiées</span>
+              <span>Total: {{ stats.lecons_7d }}</span>
+            </div>
+            <div class="wp-trend-bars orange">
+              {% for value in trends.lecons_pct %}
+              <span style="height:{{ value }}%"></span>
+              {% endfor %}
+            </div>
+            <div class="wp-trend-labels">
+              {% for label in trends.labels %}<span>{{ label }}</span>{% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Actions rapides + Exercices par niveau -->
+    <div class="wp-grid2">
+
+      <!-- Actions rapides -->
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>⚡ Actions rapides</h3>
+        </div>
+        <div class="wp-card-body">
+          <div class="quick-actions">
+            <a class="qa-btn" href="/admin/learning/lettradlam/add/">
+              <span class="qa-ico">🔤</span> Ajouter une lettre
+            </a>
+            <a class="qa-btn" href="/admin/learning/lecon/add/">
+              <span class="qa-ico">📘</span> Créer une leçon
+            </a>
+            <a class="qa-btn" href="/admin/learning/exercice/add/">
+              <span class="qa-ico">🎯</span> Nouvel exercice
+            </a>
+            <a class="qa-btn" href="/admin/auth/user/add/">
+              <span class="qa-ico">👤</span> Ajouter un utilisateur
+            </a>
+            <a class="qa-btn" href="/alphabet/">
+              <span class="qa-ico">👁</span> Voir l'alphabet
+            </a>
+            <a class="qa-btn" href="/exercices/">
+              <span class="qa-ico">🏃</span> Faire un exercice
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Répartition par niveau -->
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>📊 Exercices par niveau</h3>
+        </div>
+        <div class="wp-card-body">
+          {% for row in stats.ex_par_niveau %}
+          <div class="prog-row">
+            <div class="prog-label">{{ row.label }}</div>
+            <div class="prog-bar-wrap">
+              <div class="prog-bar" style="width:{{ row.pct }}%;background:{{ row.color }}"></div>
+            </div>
+            <div class="prog-val">{{ row.count }}</div>
+          </div>
+          {% endfor %}
+          <div class="prog-row" style="margin-top:1rem;padding-top:.75rem;border-top:1px solid #f0f0f1">
+            <div class="prog-label" style="font-weight:700;color:#1d2327">Total</div>
+            <div style="flex:1"></div>
+            <div class="prog-val">{{ stats.nb_exercices }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Derniers exercices + Derniers utilisateurs -->
+    <div class="wp-grid2">
+
+      <!-- Derniers exercices -->
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>🎯 Derniers exercices</h3>
+          <a href="/admin/learning/exercice/">Voir tout →</a>
+        </div>
+        <div class="wp-card-body" style="padding:0">
+          <table class="wp-table">
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Type</th>
+                <th>Niveau</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ex in derniers_exercices %}
+              <tr>
+                <td><a href="/admin/learning/exercice/{{ ex.pk }}/change/" style="color:#2271b1">{{ ex.question|truncatechars:35 }}</a></td>
+                <td>{{ ex.type_exercice }}</td>
+                <td><span class="badge-niveau badge-{{ ex.niveau }}">{{ ex.niveau }}</span></td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="3" style="color:#8c8f94;text-align:center;padding:1rem">Aucun exercice</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Derniers utilisateurs -->
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>👥 Derniers inscrits</h3>
+          <a href="/admin/auth/user/">Voir tout →</a>
+        </div>
+        <div class="wp-card-body" style="padding:0">
+          <table class="wp-table">
+            <thead>
+              <tr>
+                <th>Utilisateur</th>
+                <th>Points XP</th>
+                <th>Inscrit le</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for u in derniers_users %}
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:.5rem">
+                    <div style="width:26px;height:26px;border-radius:50%;background:#2271b1;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800;flex-shrink:0">
+                      {{ u.username|first|upper }}
+                    </div>
+                    <a href="/admin/auth/user/{{ u.pk }}/change/" style="color:#2271b1">{{ u.username }}</a>
+                  </div>
+                </td>
+                <td>{{ u.xp }} XP</td>
+                <td style="color:#8c8f94;font-size:.78rem">{{ u.date_joined|date:"d/m/Y" }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="3" style="color:#8c8f94;text-align:center;padding:1rem">Aucun utilisateur</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Top apprenants + Leçons -->
+    <div class="wp-grid2">
+
+      <!-- Top apprenants -->
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>🏆 Top apprenants</h3>
+        </div>
+        <div class="wp-card-body" style="padding:0">
+          <table class="wp-table">
+            <thead><tr><th>#</th><th>Apprenant</th><th>XP</th><th>Série</th></tr></thead>
+            <tbody>
+              {% for p in top_progressions %}
+              <tr>
+                <td style="font-weight:700;color:#8c8f94">{{ forloop.counter }}</td>
+                <td>{{ p.utilisateur.username }}</td>
+                <td style="font-weight:700;color:#2271b1">{{ p.points }}</td>
+                <td>🔥 {{ p.serie_jours }}j</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" style="color:#8c8f94;text-align:center;padding:1rem">Aucune donnée</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Leçons récentes -->
+      <div class="wp-card">
+        <div class="wp-card-head">
+          <h3>📘 Leçons récentes</h3>
+          <a href="/admin/learning/lecon/">Voir tout →</a>
+        </div>
+        <div class="wp-card-body" style="padding:0">
+          <table class="wp-table">
+            <thead><tr><th>Titre</th><th>Niveau</th><th>Exercices</th></tr></thead>
+            <tbody>
+              {% for l in dernieres_lecons %}
+              <tr>
+                <td><a href="/admin/learning/lecon/{{ l.pk }}/change/" style="color:#2271b1">{{ l.titre|truncatechars:28 }}</a></td>
+                <td><span class="badge-niveau badge-{{ l.niveau }}">{{ l.niveau }}</span></td>
+                <td style="color:#8c8f94">{{ l.exercices.count }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="3" style="color:#8c8f94;text-align:center;padding:1rem">Aucune leçon</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /wp-content -->
+</div><!-- /wp-main -->
+
+<script>
+/* ── Carte Leaflet ──────────────────────────────────────────────────────── */
+var worldMap = L.map('world-map', {scrollWheelZoom: false}).setView([20, 10], 2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 18,
+}).addTo(worldMap);
+
+var mapMarkers = [];
+var onlineIcon = L.divIcon({
+  html: '<div style="width:14px;height:14px;border-radius:50%;background:#00a32a;border:2px solid #fff;box-shadow:0 0 0 3px rgba(0,163,42,.3)"></div>',
+  className: '',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+});
+
+function renderMapMarkers(markers) {
+  mapMarkers.forEach(function(m) { worldMap.removeLayer(m); });
+  mapMarkers = [];
+  if (markers.length === 0) return;
+  markers.forEach(function(m) {
+    var popup = '<b>' + m.label + '</b>';
+    if (m.city || m.country) popup += '<br>' + [m.city, m.country].filter(Boolean).join(', ');
+    var mk = L.marker([m.lat, m.lng], {icon: onlineIcon}).addTo(worldMap).bindPopup(popup);
+    mapMarkers.push(mk);
+  });
+  // Si des marqueurs, zoomer pour les inclure tous
+  if (markers.length === 1) {
+    worldMap.setView([markers[0].lat, markers[0].lng], 5);
+  } else if (markers.length > 1) {
+    var bounds = L.latLngBounds(markers.map(function(m) { return [m.lat, m.lng]; }));
+    worldMap.fitBounds(bounds, {padding: [40, 40]});
+  }
+}
+
+// Marqueurs initiaux depuis Django
+renderMapMarkers({{ map_markers|safe }});
+
+/* ── Auto-refresh (données en ligne toutes les 30s) ────────────────────── */
+(function () {
+  var MINUTES = {{ online_minutes }};
+  var INTERVAL = 30000;
+  var badge = document.getElementById('online-refresh-badge');
+  var byPathEl = document.getElementById('online-by-path');
+  var tbodyEl  = document.getElementById('online-users-tbody');
+  var mapBadge = document.getElementById('map-count-badge');
+
+  function countdown(secs) {
+    if (!badge) return;
+    badge.textContent = 'Prochain rafraîchissement dans ' + secs + 's';
+  }
+
+  function fetchOnline() {
+    fetch('/tableau-bord/online-stats/?online_min=' + MINUTES)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        // Barres par page
+        if (byPathEl) {
+          if (data.by_path.length === 0) {
+            byPathEl.innerHTML = '<div style="color:#8c8f94">Aucun utilisateur connecté actuellement.</div>';
+          } else {
+            byPathEl.innerHTML = data.by_path.map(function(row) {
+              return '<div class="online-row">' +
+                '<div class="online-path" title="' + row.path + '">' + row.path + '</div>' +
+                '<div class="online-bar"><div class="online-fill" style="width:' + row.pct + '%"></div></div>' +
+                '<div class="online-count">' + row.count + '</div></div>';
+            }).join('');
+          }
+        }
+        // Tableau utilisateurs
+        if (tbodyEl) {
+          var deviceIco = {mobile: '📱', tablet: '📟', desktop: '💻'};
+          if (data.users.length === 0) {
+            tbodyEl.innerHTML = '<tr><td colspan="6" style="color:#8c8f94;text-align:center;padding:1rem">Aucun utilisateur connecté</td></tr>';
+          } else {
+            tbodyEl.innerHTML = data.users.map(function(u) {
+              var ico = deviceIco[u.device] || '💻';
+              return '<tr>' +
+                '<td>' + u.username + '</td>' +
+                '<td style="color:#646970">' + u.path + '</td>' +
+                '<td>' + u.ago + '</td>' +
+                '<td style="color:#8c8f94">' + u.ip + '</td>' +
+                '<td style="color:#8c8f94;font-size:.8rem">' + u.geo + '</td>' +
+                '<td style="text-align:center">' + ico + '</td>' +
+                '</tr>';
+            }).join('');
+          }
+        }
+        // Mise à jour carte
+        if (data.markers) {
+          renderMapMarkers(data.markers);
+          if (mapBadge) mapBadge.textContent = data.markers.length + ' marqueur' + (data.markers.length > 1 ? 's' : '');
+        }
+        // Compte à rebours
+        clearInterval(countdownTimer);
+        var secs = INTERVAL / 1000;
+        countdown(secs);
+        countdownTimer = setInterval(function() {
+          secs -= 1;
+          if (secs > 0) { countdown(secs); }
+        }, 1000);
+      })
+      .catch(function() {
+        if (badge) badge.textContent = 'Actualisation en échec';
+      });
+  }
+
+  var countdownTimer = null;
+  var secs = INTERVAL / 1000;
+  countdown(secs);
+  countdownTimer = setInterval(function() {
+    secs -= 1;
+    if (secs > 0) { countdown(secs); }
+  }, 1000);
+
+  setInterval(fetchOnline, INTERVAL);
+
+  // Menu mobile sidebar
+  var btn = document.getElementById('sidebar-toggle');
+  var sidebar = document.getElementById('sidebar');
+  if (btn && sidebar) {
+    btn.addEventListener('click', function() { sidebar.classList.toggle('open'); });
+  }
+})();
+</script>
+
+</body>
+</html>

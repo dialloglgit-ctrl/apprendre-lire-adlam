@@ -1,0 +1,27 @@
+{% extends 'tableau_bord/liste_base.html' %}
+{% block table %}
+<table class="wp-table">
+  <thead><tr><th>#</th><th>Apprenant</th><th>XP</th><th>Série</th><th>Lettres vues</th><th>Badges</th><th>Dernière activité</th></tr></thead>
+  <tbody>
+    {% for p in progressions %}
+    <tr>
+      <td style="color:#8c8f94">{{ forloop.counter }}</td>
+      <td style="font-weight:700">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div style="width:28px;height:28px;border-radius:50%;background:#2271b1;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;flex-shrink:0">
+            {{ p.utilisateur.username|first|upper }}
+          </div>
+          {{ p.utilisateur.username }}
+        </div>
+      </td>
+      <td><strong style="color:#2271b1">{{ p.points }}</strong></td>
+      <td>🔥 {{ p.serie_jours }}j</td>
+      <td>{{ p.lettres_vues.count }}</td>
+      <td>{{ p.badges|length }}</td>
+      <td style="color:#8c8f94;font-size:.78rem">{{ p.derniere_activite|date:"d/m/Y H:i" }}</td>
+    </tr>
+    {% empty %}<tr><td colspan="7" class="empty-msg">Aucune progression</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

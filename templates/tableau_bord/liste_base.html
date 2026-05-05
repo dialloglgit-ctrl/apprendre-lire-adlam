@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ page_title }} – PROMET Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f1;color:#1d2327;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wp-sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:#1d2327;overflow-y:auto;z-index:100}
+.wp-brand{padding:1.25rem 1.5rem;border-bottom:1px solid #2c3338;display:flex;align-items:center;gap:.75rem}
+.wp-brand-icon{font-family:'Noto Sans Adlam',serif;font-size:1.8rem;color:#2271b1}
+.wp-brand-name{color:#fff;font-weight:800;font-size:1rem}
+.wp-brand-sub{color:#8c8f94;font-size:.72rem}
+.wp-nav{padding:.75rem 0}
+.wp-nav-section{color:#8c8f94;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.6rem 1.5rem .3rem}
+.wp-nav a{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.5rem;color:#c3c4c7;font-size:.875rem;transition:background .15s}
+.wp-nav a:hover,.wp-nav a.active{background:#2c3338;color:#72aee6}
+.wp-nav a.active{border-left:3px solid #2271b1}
+.nav-ico{width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:#ca4a1f;color:#fff;border-radius:999px;padding:1px 7px;font-size:.7rem;font-weight:700}
+.wp-main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
+.wp-topbar{background:#1d2327;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:90}
+.wp-topbar-title{color:#a7aaad;font-size:.82rem}
+.wp-topbar-right{display:flex;align-items:center;gap:1rem}
+.wp-topbar-right a{color:#a7aaad;font-size:.8rem;padding:.3rem .65rem;border-radius:4px}
+.wp-topbar-right a:hover{background:#2c3338;color:#fff}
+.wp-topbar-avatar{width:26px;height:26px;border-radius:50%;background:#2271b1;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.75rem}
+.wp-content{flex:1;padding:2rem}
+.wp-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem}
+.wp-page-title{font-size:1.5rem;font-weight:700}
+.btn-add{background:#2271b1;color:#fff;padding:.55rem 1.1rem;border-radius:6px;font-size:.85rem;font-weight:700;transition:background .15s}
+.btn-add:hover{background:#135e96}
+.wp-tools{display:flex;flex-wrap:wrap;align-items:flex-end;gap:.6rem;margin-bottom:1rem;background:#fff;border-radius:8px;padding:.9rem;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.wp-field{display:flex;flex-direction:column;gap:.35rem}
+.wp-field label{font-size:.72rem;color:#646970;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.wp-input,.wp-select{height:36px;border:1px solid #c3c4c7;border-radius:6px;padding:0 .7rem;min-width:170px;background:#fff}
+.wp-input:focus,.wp-select:focus{outline:none;border-color:#2271b1;box-shadow:0 0 0 2px rgba(34,113,177,.15)}
+.wp-actions{display:flex;gap:.45rem;align-items:center}
+.btn-filter{height:36px;background:#2271b1;color:#fff;border:0;border-radius:6px;padding:0 .9rem;font-weight:700;cursor:pointer}
+.btn-filter:hover{background:#135e96}
+.btn-soft{height:36px;background:#f6f7f7;color:#1d2327;border:1px solid #dcdcde;border-radius:6px;padding:0 .9rem;font-weight:700;display:inline-flex;align-items:center}
+.btn-soft:hover{background:#fff;border-color:#2271b1;color:#2271b1}
+.wp-list-meta{font-size:.8rem;color:#646970;margin:.2rem 0 .8rem}
+.wp-card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow:hidden}
+.wp-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.wp-table th{text-align:left;padding:.65rem .9rem;border-bottom:2px solid #f0f0f1;color:#646970;font-weight:700;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em}
+.wp-table td{padding:.65rem .9rem;border-bottom:1px solid #f0f0f1;vertical-align:middle}
+.wp-table tr:last-child td{border-bottom:none}
+.wp-table tr:hover td{background:#f9f9f9}
+.badge-niveau{border-radius:999px;padding:.2rem .65rem;font-size:.7rem;font-weight:700}
+.badge-debutant{background:#d4edda;color:#155724}
+.badge-intermediaire{background:#fff3cd;color:#856404}
+.badge-avance{background:#f8d7da;color:#721c24}
+.action-link{color:#2271b1;font-size:.78rem;margin-right:.5rem}
+.action-link:hover{text-decoration:underline}
+.action-del{color:#d63638;font-size:.78rem}
+.action-del:hover{text-decoration:underline}
+.empty-msg{text-align:center;padding:3rem;color:#8c8f94}
+.wp-pagination{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;justify-content:flex-end;margin-top:1rem}
+.wp-pagination a,.wp-pagination span{border:1px solid #dcdcde;background:#fff;border-radius:6px;padding:.35rem .65rem;font-size:.8rem;color:#1d2327}
+.wp-pagination a:hover{border-color:#2271b1;color:#2271b1}
+.wp-pagination .is-current{background:#2271b1;color:#fff;border-color:#2271b1;font-weight:700}
+@media(max-width:782px){.wp-sidebar{display:none}.wp-main{margin-left:0}}
+</style>
+</head>
+<body>
+
+<aside class="wp-sidebar">
+  <div class="wp-brand">
+    <span class="wp-brand-icon">𞤆</span>
+    <div><div class="wp-brand-name">PROMET Admin</div><div class="wp-brand-sub">Plateforme Adlam</div></div>
+  </div>
+  <nav class="wp-nav">
+    <div class="wp-nav-section">Principal</div>
+    <a href="{% url 'tableau_bord' %}"><span class="nav-ico">🏠</span> Tableau de bord</a>
+    <a href="/"><span class="nav-ico">🌐</span> Voir le site</a>
+    <div class="wp-nav-section">Contenu</div>
+    <a href="{% url 'tb_lettres' %}" {% if active == 'lettres' %}class="active"{% endif %}><span class="nav-ico">🔤</span> Lettres Adlam</a>
+    <a href="{% url 'tb_lecons' %}"  {% if active == 'lecons'  %}class="active"{% endif %}><span class="nav-ico">📘</span> Leçons</a>
+    <a href="{% url 'tb_exercices' %}" {% if active == 'exercices' %}class="active"{% endif %}><span class="nav-ico">🎯</span> Exercices</a>
+    <a href="{% url 'tb_videos' %}" {% if active == 'videos' %}class="active"{% endif %}><span class="nav-ico">🎬</span> Vidéos</a>
+    <a href="{% url 'tb_livres' %}" {% if active == 'livres' %}class="active"{% endif %}><span class="nav-ico">📚</span> Livres</a>
+    <a href="{% url 'tb_boutique' %}" {% if active == 'boutique' %}class="active"{% endif %}><span class="nav-ico">🛒</span> Livres à vendre</a>
+    <div class="wp-nav-section">Utilisateurs</div>
+    <a href="{% url 'tb_utilisateurs' %}" {% if active == 'users' %}class="active"{% endif %}><span class="nav-ico">👥</span> Utilisateurs</a>
+    <a href="{% url 'tb_progressions' %}" {% if active == 'prog'  %}class="active"{% endif %}><span class="nav-ico">📈</span> Progressions</a>
+    <div class="wp-nav-section">Système</div>
+    <a href="/admin/"><span class="nav-ico">⚙️</span> Django Admin</a>
+    <a href="{% url 'tb_logout' %}"><span class="nav-ico">🚪</span> Déconnexion</a>
+  </nav>
+</aside>
+
+<div class="wp-main">
+  <div class="wp-topbar">
+    <span class="wp-topbar-title">PROMET · {{ page_title }}</span>
+    <div class="wp-topbar-right">
+      <a href="/">🌐 Site</a>
+      <div style="display:flex;align-items:center;gap:.5rem;color:#c3c4c7;font-size:.82rem">
+        <div class="wp-topbar-avatar">{{ request.user.username|first|upper }}</div>
+        {{ request.user.username }}
+      </div>
+    </div>
+  </div>
+  <div class="wp-content">
+    <div class="wp-page-header">
+      <h1 class="wp-page-title">{{ page_title }}</h1>
+      {% if add_url %}<a class="btn-add" href="{{ add_url }}">{{ add_label|default:'+ Ajouter' }}</a>{% endif %}
+    </div>
+
+    <form class="wp-tools" method="get">
+      {% if show_search %}
+      <div class="wp-field">
+        <label>Recherche</label>
+        <input class="wp-input" type="text" name="q" value="{{ q }}" placeholder="Mot-clé...">
+      </div>
+      {% endif %}
+
+      {% if show_level_filter %}
+      <div class="wp-field">
+        <label>Niveau</label>
+        <select class="wp-select" name="niveau">
+          <option value="">Tous</option>
+          {% for value, label in level_choices %}
+          <option value="{{ value }}" {% if niveau == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      {% if show_type_filter %}
+      <div class="wp-field">
+        <label>Type</label>
+        <select class="wp-select" name="type">
+          <option value="">Tous</option>
+          {% for value, label in type_choices %}
+          <option value="{{ value }}" {% if type_exercice == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      {% if show_staff_filter %}
+      <div class="wp-field">
+        <label>Staff</label>
+        <select class="wp-select" name="staff">
+          <option value="" {% if staff == '' %}selected{% endif %}>Tous</option>
+          <option value="yes" {% if staff == 'yes' %}selected{% endif %}>Oui</option>
+          <option value="no" {% if staff == 'no' %}selected{% endif %}>Non</option>
+        </select>
+      </div>
+      {% endif %}
+
+      {% if show_order %}
+      <div class="wp-field">
+        <label>Trier par</label>
+        <select class="wp-select" name="order">
+          {% for value, label in order_choices %}
+          <option value="{{ value }}" {% if order == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <div class="wp-actions">
+        <button class="btn-filter" type="submit">Appliquer</button>
+        <a class="btn-soft" href="{{ request.path }}">Réinitialiser</a>
+        <a class="btn-soft" href="?{% if query_string_no_page_export %}{{ query_string_no_page_export }}&{% endif %}export=csv">Exporter CSV</a>
+      </div>
+    </form>
+
+    {% if page_obj %}
+    <div class="wp-list-meta">
+      {{ total_count }} éléments · page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+    </div>
+    {% endif %}
+
+    <div class="wp-card">
+      {% block table %}{% endblock %}
+    </div>
+
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    <div class="wp-pagination">
+      {% if page_obj.has_previous %}
+      <a href="?{% if query_string_no_page_export %}{{ query_string_no_page_export }}&{% endif %}page=1">« Début</a>
+      <a href="?{% if query_string_no_page_export %}{{ query_string_no_page_export }}&{% endif %}page={{ page_obj.previous_page_number }}">‹ Précédent</a>
+      {% endif %}
+      <span class="is-current">{{ page_obj.number }}</span>
+      {% if page_obj.has_next %}
+      <a href="?{% if query_string_no_page_export %}{{ query_string_no_page_export }}&{% endif %}page={{ page_obj.next_page_number }}">Suivant ›</a>
+      <a href="?{% if query_string_no_page_export %}{{ query_string_no_page_export }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Fin »</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{% tr 'exercises.title' %} - PROMET{% endblock %}
+
+{% block contenu %}
+<div>
+  <h1 class="section-title">{% tr 'exercises.title' %}</h1>
+  <p class="section-subtitle">Choisis un exercice et gagne de l'XP.</p>
+
+  <div class="filter-tabs">
+    <a href="{% url 'exercices' %}" class="filter-tab {% if not niveau_actif %}active{% endif %}">{% tr 'exercises.all' %}</a>
+    {% for val, label in niveaux %}
+    <a href="?niveau={{ val }}" class="filter-tab {% if niveau_actif == val %}active{% endif %}">{{ val|level_label:ui_lang }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div>
+  {% for ex in exercices %}
+  <a href="{% url 'exercice_detail' ex.pk %}" class="exercise-list-item type-{{ ex.type_exercice }}">
+    <div class="exercise-type-icon">
+      {% if ex.type_exercice == 'qcm' %}❓{% elif ex.type_exercice == 'dictee' %}✍️{% elif ex.type_exercice == 'association' %}🧩{% else %}📝{% endif %}
+    </div>
+    <div style="flex:1">
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.25rem">
+        <span class="badge badge-{{ ex.type_exercice }}">{{ ex.type_exercice|exercise_type_label:ui_lang }}</span>
+        <span class="badge badge-{{ ex.niveau }}">{{ ex.niveau|level_label:ui_lang }}</span>
+      </div>
+      <div style="font-weight:800">{{ ex.question|truncatechars:100 }}</div>
+    </div>
+  </a>
+  {% empty %}
+  <p class="card">{% tr 'exercises.none' %}</p>
+  {% endfor %}
+</div>
+{% endblock %}

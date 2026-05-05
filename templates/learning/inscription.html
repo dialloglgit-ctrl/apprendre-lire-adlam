@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{% tr 'auth.signup_btn' %} - PROMET{% endblock %}
+
+{% block contenu %}
+<div class="auth-card">
+  <h1>{% tr 'auth.signup_title' %}</h1>
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field|add_class:'form-control' }}
+      {% if field.errors %}
+        {% for error in field.errors %}
+        <span class="form-error">{{ error }}</span>
+        {% endfor %}
+      {% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary btn-full">{% tr 'auth.signup_btn' %}</button>
+  </form>
+  <p class="auth-link">{% tr 'auth.have_account' %} <a href="{% url 'connexion' %}">{% tr 'auth.go_login' %}</a></p>
+</div>
+{% endblock %}

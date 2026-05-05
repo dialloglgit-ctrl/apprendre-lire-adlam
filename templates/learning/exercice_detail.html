@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{{ exercice.question|truncatechars:40 }} – PROMET{% endblock %}
+
+{% block contenu %}
+<div class="exercise-screen">
+  <!-- Barre de progression avec cœurs -->
+  <div class="exercise-progress">
+    <a href="{% url 'exercices' %}" class="btn btn-outline btn-sm" style="flex-shrink:0">✕</a>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar" id="xp-bar" style="width:0%"></div>
+    </div>
+    <div class="hearts" id="hearts-container">
+      <span class="heart">❤️</span>
+      <span class="heart">❤️</span>
+      <span class="heart">❤️</span>
+    </div>
+  </div>
+
+  <!-- Badges -->
+  <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+    <span class="badge badge-{{ exercice.type_exercice }}">{{ exercice.type_exercice|exercise_type_label:ui_lang }}</span>
+    <span class="badge badge-{{ exercice.niveau }}">{{ exercice.niveau|level_label:ui_lang }}</span>
+  </div>
+
+  <!-- Question -->
+  <div class="exercise-question-box">
+    <div class="question-text adlam-question" dir="rtl">{{ exercice.question }}</div>
+
+    {% if exercice.type_exercice == 'qcm' and exercice.choix %}
+    <!-- QCM Options -->
+    <div class="qcm-options" id="qcm-choices">
+      {% for choix in exercice.choix %}
+      <button class="qcm-btn" data-valeur="{{ choix }}">{{ choix }}</button>
+      {% endfor %}
+    </div>
+
+    {% elif exercice.type_exercice == 'dictee' or exercice.type_exercice == 'ecriture' %}
+    <!-- Saisie Adlam avec clavier virtuel -->
+    <input type="text" id="reponse-input" class="answer-input adlam-input"
+           placeholder="{% tr 'exercise.write_placeholder' %}" autocomplete="off" dir="rtl" style="margin-top:.75rem">
+    <div class="keyboard-wrap">
+      <div class="keyboard-title">Clavier Adlam</div>
+      <div id="clavier-adlam" class="adlam-keyboard"></div>
+    </div>
+
+    {% else %}
+    <!-- Saisie libre -->
+    <input type="text" id="reponse-input" class="answer-input" style="margin-top:.75rem"
+           placeholder="{% tr 'exercise.answer_placeholder' %}">
+    {% endif %}
+  </div>
+
+  <!-- Bouton valider -->
+  {% if exercice.type_exercice != 'qcm' %}
+  <button class="btn btn-primary btn-full btn-lg" id="btn-valider">{% tr 'exercise.validate' %}</button>
+  {% endif %}
+
+  <!-- Feedback panel -->
+  <div id="resultat" class="feedback-panel"></div>
+
+  <!-- Points gagnés -->
+  <div id="points-earned" style="display:none;text-align:center;margin-top:.75rem;font-weight:900;font-size:1.1rem;color:var(--duo-green)"></div>
+
+  <!-- Bouton question suivante -->
+  {% if next_exercice %}
+  <a id="btn-suivant"
+     href="{% url 'exercice_detail' next_exercice.pk %}"
+     class="btn btn-primary btn-full btn-lg btn-suivant-hidden"
+     style="margin-top:1rem">
+    ⏭ Question suivante
+  </a>
+  {% else %}
+  <a id="btn-suivant"
+     href="{% url 'exercices' %}"
+     class="btn btn-secondary btn-full btn-lg btn-suivant-hidden"
+     style="margin-top:1rem">
+    ✅ Terminer les exercices
+  </a>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const EXERCICE_ID = {{ exercice.pk }};
+const TYPE = "{{ exercice.type_exercice }}";
+const CHOIX = {{ exercice.choix|safe }};
+window.I18N = {
+  loginRequired: "{% tr 'exercise.login_required' %}",
+  goodAnswer: "{% tr 'exercise.good_answer' %}",
+  badAnswer: "{% tr 'exercise.bad_answer' %}",
+  correctAnswer: "{% tr 'exercise.correct_answer' %}",
+  closeSuggestion: "{% tr 'exercise.close_suggestion' %}",
+};
+</script>
+<script src="{% static 'js/exercice.js' %}?v=3"></script>
+<script src="{% static 'js/clavier_adlam.js' %}"></script>
+<script>
+// Affiche le bouton "suivant" dès que le feedback apparaît (indépendant du cache JS)
+(function() {
+  var btn = document.getElementById('btn-suivant');
+  var panel = document.getElementById('resultat');
+  if (!btn || !panel) return;
+  new MutationObserver(function() {
+    if (panel.classList.contains('show')) {
+      btn.classList.remove('btn-suivant-hidden');
+    }
+  }).observe(panel, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+{% endblock %}

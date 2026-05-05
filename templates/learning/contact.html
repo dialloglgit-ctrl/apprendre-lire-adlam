@@ -1,0 +1,50 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block titre %}Contact | PROMET{% endblock %}
+
+{% block contenu %}
+<section class="info-page">
+  <div class="info-hero">
+    <div>
+      <span class="books-kicker">✉️ Contact</span>
+      <h1>Nous contacter</h1>
+      <p>Une question, une suggestion ou un partenariat ? Écrivez-nous !</p>
+    </div>
+    <div class="books-hero-card">
+      <div class="books-hero-icon">📬</div>
+      <strong>Réponse rapide</strong>
+      <span>Nous vous répondons généralement sous 48h.</span>
+    </div>
+  </div>
+
+  <div class="info-content">
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="post" class="contact-form">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="nom">Votre nom</label>
+        <input type="text" id="nom" name="nom" required maxlength="100" placeholder="Ex: Mamadou Diallo">
+      </div>
+      <div class="form-group">
+        <label for="email">Votre email</label>
+        <input type="email" id="email" name="email" required placeholder="exemple@mail.com">
+      </div>
+      <div class="form-group">
+        <label for="sujet">Sujet</label>
+        <input type="text" id="sujet" name="sujet" required maxlength="200" placeholder="Objet de votre message">
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="6" required placeholder="Votre message..."></textarea>
+      </div>
+      <button type="submit" class="btn-primary-lg">Envoyer le message</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

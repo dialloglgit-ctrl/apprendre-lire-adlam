@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{% tr 'site.title' %}{% endblock %}
+
+{% block contenu %}
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-adlam adlam-text">𞤆𞤪𞤮𞤥𞤫𞤼</div>
+  <h1>{% tr 'hero.title' %}</h1>
+  <p>{% tr 'hero.subtitle' %}</p>
+  <div class="hero-actions">
+    <a href="{% url 'alphabet' %}" class="btn btn-primary btn-lg">{% tr 'hero.cta.alphabet' %}</a>
+    <a href="{% url 'lecons' %}" class="btn btn-secondary btn-lg">{% tr 'hero.cta.lessons' %}</a>
+  </div>
+</section>
+
+<!-- Stats strip -->
+<div class="stats-strip">
+  <div class="stat-box">
+    <div class="stat-number">{{ nb_lettres }}</div>
+    <div class="stat-label">{% tr 'home.stats.letters' %}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-number">{{ nb_lecons }}</div>
+    <div class="stat-label">{% tr 'home.stats.lessons' %}</div>
+  </div>
+  {% if progression %}
+  <div class="stat-box">
+    <div class="stat-number">{{ progression.points }}</div>
+    <div class="stat-label">{% tr 'home.stats.points' %}</div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Sections principales -->
+<div class="lesson-grid" style="margin-bottom:2rem">
+  <a href="{% url 'alphabet' %}" class="lesson-card">
+    <div class="lesson-card-icon adlam-text">𞤀</div>
+    <h3>Alphabet Adlam</h3>
+    <p>Explorez les 28 lettres avec prononciation et exemples.</p>
+    <span class="btn btn-outline btn-sm" style="align-self:flex-start">Explorer</span>
+  </a>
+  <a href="{% url 'lecons' %}" class="lesson-card">
+    <div class="lesson-card-icon">📚</div>
+    <h3>Leçons progressives</h3>
+    <p>Du débutant à l'avancé : lisez des mots et phrases en pulaar.</p>
+    <span class="btn btn-outline btn-sm" style="align-self:flex-start">Voir les leçons</span>
+  </a>
+  <a href="{% url 'exercices' %}" class="lesson-card">
+    <div class="lesson-card-icon">🎯</div>
+    <h3>Exercices interactifs</h3>
+    <p>QCM, associations lettre/son, quiz pour tester vos connaissances.</p>
+    <span class="btn btn-outline btn-sm" style="align-self:flex-start">S'exercer</span>
+  </a>
+  <a href="{% url 'dictee' %}" class="lesson-card">
+    <div class="lesson-card-icon">✍️</div>
+    <h3>Dictée / Écriture</h3>
+    <p>Écrivez en Adlam grâce au clavier virtuel et entraînez-vous.</p>
+    <span class="btn btn-outline btn-sm" style="align-self:flex-start">Pratiquer</span>
+  </a>
+</div>
+
+<!-- Dernières leçons -->
+{% if lecons_recentes %}
+<div class="section-header">
+  <h2>Leçons pour commencer</h2>
+  <a href="{% url 'lecons' %}" class="btn btn-outline btn-sm">Voir tout</a>
+</div>
+<div class="lesson-grid">
+    {% for lecon in lecons_recentes %}
+    <a href="{% url 'lecon_detail' lecon.pk %}" class="lesson-card">
+      <span class="badge badge-{{ lecon.niveau }}">{{ lecon.niveau|level_label:ui_lang }}</span>
+      <h3>{{ lecon.titre }}</h3>
+      <p>{{ lecon.description|truncatechars:80 }}</p>
+    </a>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- CTA Inscription -->
+{% if not user.is_authenticated %}
+<div class="card" style="text-align:center;margin-top:2rem;padding:2rem">
+  <div style="font-size:2.5rem;margin-bottom:.5rem">🎓</div>
+  <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:.5rem">Suivez votre progression</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.25rem">Créez un compte gratuit pour sauvegarder vos avancées et gagner des points.</p>
+  <a href="{% url 'inscription' %}" class="btn btn-primary btn-lg">Créer un compte gratuit</a>
+</div>
+{% else %}
+<div class="card" style="text-align:center;margin-top:2rem;padding:2rem">
+  <div style="font-size:2.5rem;margin-bottom:.5rem">⚡</div>
+  <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:.5rem">Votre progression</h2>
+  <p style="color:var(--text-muted);margin-bottom:.75rem">{{ progression.points }} points accumulés</p>
+  <a href="{% url 'profil' %}" class="btn btn-secondary">Voir mon profil</a>
+</div>
+{% endif %}
+
+{% endblock %}

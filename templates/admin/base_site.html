@@ -1,0 +1,61 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  :root {
+    --primary: #0f172a;
+    --secondary: #111827;
+    --accent: #22c55e;
+    --header-color: #e5e7eb;
+    --header-branding-color: #ffffff;
+    --header-bg: #0b1220;
+    --header-link-color: #93c5fd;
+    --breadcrumbs-bg: #111827;
+    --breadcrumbs-link-fg: #93c5fd;
+    --breadcrumbs-fg: #cbd5e1;
+    --body-fg: #e5e7eb;
+    --body-bg: #0f172a;
+    --link-fg: #93c5fd;
+    --link-hover-color: #bfdbfe;
+    --hairline-color: #1f2937;
+    --border-color: #1f2937;
+    --error-fg: #fda4af;
+    --message-success-bg: #064e3b;
+    --message-warning-bg: #78350f;
+    --message-error-bg: #7f1d1d;
+    --darkened-bg: #0b1220;
+    --selected-bg: #1e293b;
+    --selected-row: #172554;
+    --close-button-bg: #7f1d1d;
+    --close-button-hover-bg: #991b1b;
+  }
+
+  html[data-theme="light"], html[data-theme="auto"] {
+    color-scheme: dark;
+  }
+
+  #header {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+  }
+
+  .module h2,
+  .module caption,
+  .inline-group h2 {
+    background: #111827;
+  }
+
+  .submit-row input,
+  .button,
+  input[type="submit"],
+  input[type="button"],
+  .object-tools a {
+    border-radius: 8px;
+  }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Administration PROMET</a></h1>
+{% endblock %}

@@ -1,0 +1,40 @@
+﻿{% extends 'tableau_bord/liste_base.html' %}
+{% block page_title %}FAQ{% endblock %}
+{% block page_header %}FAQ{% endblock %}
+{% block list_content %}
+<div class="wp-card" style="margin-bottom:1.5rem;padding:1.25rem">
+  <h3 style="margin-bottom:1rem">Ajouter une entrée FAQ</h3>
+  <form method="post">{% csrf_token %}
+    <input type="hidden" name="action" value="ajouter">
+    <div style="display:grid;grid-template-columns:2fr 1fr 80px;gap:.75rem;margin-bottom:.75rem">
+      <input class="wp-input" name="question" placeholder="Question *" required style="width:100%">
+      <input class="wp-input" name="categorie" placeholder="Catégorie" value="Général" style="width:100%">
+      <input class="wp-input" name="ordre" type="number" placeholder="Ordre" value="0" style="width:100%">
+    </div>
+    <textarea class="wp-input" name="reponse" rows="3" placeholder="Réponse *" required style="width:100%;height:auto;padding:.5rem"></textarea>
+    <div style="margin-top:.75rem;display:flex;align-items:center;gap:1rem">
+      <label><input type="checkbox" name="active" value="1" checked> Actif</label>
+      <button class="btn-add" type="submit">Ajouter</button>
+    </div>
+  </form>
+</div>
+<div class="wp-card">
+  <table class="wp-table">
+    <thead><tr><th>#</th><th>Question</th><th>Catégorie</th><th>Ordre</th><th>Actif</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for f in faqs %}
+    <tr>
+      <td>{{ f.pk }}</td>
+      <td>{{ f.question }}</td>
+      <td>{{ f.categorie }}</td>
+      <td>{{ f.ordre }}</td>
+      <td>{% if f.active %}✅{% else %}—{% endif %}</td>
+      <td><form method="post" style="display:inline" onsubmit="return confirm('Supprimer ?')">{% csrf_token %}<input type="hidden" name="action" value="supprimer"><input type="hidden" name="pk" value="{{ f.pk }}"><button class="btn-row-del">Suppr.</button></form></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6" style="text-align:center;color:#8c8f94;padding:2rem">Aucune entrée FAQ.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

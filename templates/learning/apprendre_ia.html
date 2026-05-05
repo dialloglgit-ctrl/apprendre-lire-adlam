@@ -1,0 +1,461 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{% tr 'nav.ia_learn' %} – PROMET{% endblock %}
+
+{% block contenu %}
+
+{{ phrases|json_script:"phrases-data" }}
+{{ lettres|json_script:"lettres-data" }}
+
+<div class="ia-page">
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════════ -->
+<div class="ia-hero">
+  <!-- Illustration SVG gauche -->
+  <div class="ia-hero-illo" aria-hidden="true">
+    <svg viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" width="160" height="160">
+      <!-- Corps du personnage qui lit -->
+      <circle cx="90" cy="48" r="26" fill="#FFD166" stroke="#E8A020" stroke-width="2.5"/>
+      <!-- Visage -->
+      <circle cx="82" cy="44" r="3.5" fill="#333"/>
+      <circle cx="98" cy="44" r="3.5" fill="#333"/>
+      <path d="M83 55 Q90 62 97 55" stroke="#333" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <!-- Cheveux -->
+      <path d="M65 42 Q68 22 90 20 Q112 22 115 42" fill="#3D2B1F" stroke="none"/>
+      <!-- Corps -->
+      <rect x="68" y="74" width="44" height="52" rx="12" fill="#4C8BF5" stroke="#2563EB" stroke-width="1.5"/>
+      <!-- Bras gauche tenant le livre -->
+      <path d="M68 88 Q52 92 48 105" stroke="#FFD166" stroke-width="9" stroke-linecap="round"/>
+      <!-- Bras droit -->
+      <path d="M112 88 Q128 92 132 105" stroke="#FFD166" stroke-width="9" stroke-linecap="round"/>
+      <!-- Jambes -->
+      <rect x="74" y="122" width="14" height="38" rx="7" fill="#1e3a5f"/>
+      <rect x="92" y="122" width="14" height="38" rx="7" fill="#1e3a5f"/>
+      <!-- Livre ouvert -->
+      <rect x="42" y="98" width="42" height="30" rx="5" fill="#fff" stroke="#4C8BF5" stroke-width="1.5"/>
+      <line x1="63" y1="98" x2="63" y2="128" stroke="#4C8BF5" stroke-width="1.5"/>
+      <!-- Texte Adlam sur le livre -->
+      <text x="46" y="112" font-family="Noto Sans Adlam,serif" font-size="7" fill="#4C8BF5">𞤼𞤢𞤥</text>
+      <text x="46" y="122" font-family="Noto Sans Adlam,serif" font-size="6" fill="#2563EB">𞤱𞤢𞤢𞤤𞤭</text>
+      <text x="66" y="112" font-family="Noto Sans Adlam,serif" font-size="7" fill="#4C8BF5">𞤶𞤢𞤥</text>
+      <text x="66" y="122" font-family="Noto Sans Adlam,serif" font-size="6" fill="#2563EB">𞤸𞤭𞤪𞤭</text>
+      <!-- Lettres flottantes -->
+      <text x="138" y="38" font-family="Noto Sans Adlam,serif" font-size="22" fill="rgba(255,255,255,.9)" class="ia-float-a">𞤀</text>
+      <text x="18"  y="60" font-family="Noto Sans Adlam,serif" font-size="18" fill="rgba(255,255,255,.75)" class="ia-float-b">𞤄</text>
+      <text x="148" y="88" font-family="Noto Sans Adlam,serif" font-size="16" fill="rgba(255,255,255,.7)"  class="ia-float-c">𞤈</text>
+      <text x="10"  y="140" font-family="Noto Sans Adlam,serif" font-size="14" fill="rgba(255,255,255,.65)" class="ia-float-d">𞤔</text>
+      <!-- Étoiles IA -->
+      <circle cx="155" cy="20" r="4" fill="#FFD166" opacity=".9"/>
+      <circle cx="165" cy="35" r="2.5" fill="#fff" opacity=".7"/>
+      <circle cx="145" cy="30" r="2" fill="#FFD166" opacity=".6"/>
+    </svg>
+  </div>
+  <!-- Texte hero -->
+  <div class="ia-hero-text">
+    <div class="ia-hero-badge">🤖 Intelligence Artificielle</div>
+    <h1>Apprendre le Pulaar<br><span class="ia-hero-adlam" dir="rtl">𞤫 𞤀𞤣𞤤𞤢𞤥</span></h1>
+    <p>Lisez, prononcez, écrivez et conversez<br>en Pulaar Adlam — guidé par l'IA à chaque étape.</p>
+    <div class="ia-hero-stats">
+      <div class="ia-hero-stat"><span>{{ phrases|length }}</span> phrases</div>
+      <div class="ia-hero-stat"><span>4</span> modes</div>
+      <div class="ia-hero-stat"><span>🎤</span> audio IA</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CARDS DE PRÉSENTATION DES MODES ═══════════════════════════════════════ -->
+<div class="ia-mode-cards">
+
+  <!-- Lire -->
+  <button class="ia-mode-card" data-goto-tab="lire">
+    <div class="ia-mode-card-illo illo-lire">
+      <svg viewBox="0 0 80 80" width="64" height="64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="14" width="64" height="52" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+        <line x1="40" y1="14" x2="40" y2="66" stroke="#3B82F6" stroke-width="2"/>
+        <rect x="14" y="20" width="20" height="3" rx="1.5" fill="#93C5FD"/>
+        <rect x="14" y="27" width="16" height="3" rx="1.5" fill="#93C5FD"/>
+        <text x="44" y="32" font-family="Noto Sans Adlam,serif" font-size="11" fill="#3B82F6">𞤼𞤢𞤥</text>
+        <text x="44" y="48" font-family="Noto Sans Adlam,serif" font-size="9"  fill="#6366F1">𞤶𞤢𞤥</text>
+        <!-- Bookmark -->
+        <path d="M62 8 L62 24 L57 20 L52 24 L52 8 Z" fill="#F59E0B"/>
+      </svg>
+    </div>
+    <div class="ia-mode-card-label">📖 Lire</div>
+    <div class="ia-mode-card-desc">Lisez 25 phrases en Adlam avec leur traduction et audio</div>
+    <div class="ia-mode-card-pill" style="background:#3B82F6">Commencer →</div>
+  </button>
+
+  <!-- Prononcer -->
+  <button class="ia-mode-card" data-goto-tab="prononcer">
+    <div class="ia-mode-card-illo illo-micro">
+      <svg viewBox="0 0 80 80" width="64" height="64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Micro corps -->
+        <rect x="30" y="10" width="20" height="32" rx="10" fill="#EF4444" stroke="#B91C1C" stroke-width="2"/>
+        <rect x="34" y="14" width="4" height="8"  rx="2" fill="rgba(255,255,255,.5)"/>
+        <!-- Support -->
+        <path d="M20 40 Q20 58 40 58 Q60 58 60 40" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <line x1="40" y1="58" x2="40" y2="70" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="28" y1="70" x2="52" y2="70" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Ondes sonores -->
+        <path d="M64 30 Q72 38 64 46" stroke="#F97316" stroke-width="2" stroke-linecap="round" fill="none" opacity=".8"/>
+        <path d="M68 26 Q80 38 68 50" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".5"/>
+        <path d="M16 30 Q8 38 16 46"  stroke="#F97316" stroke-width="2" stroke-linecap="round" fill="none" opacity=".8"/>
+        <path d="M12 26 Q0 38 12 50"  stroke="#F97316" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".5"/>
+      </svg>
+    </div>
+    <div class="ia-mode-card-label">🎤 Prononcer</div>
+    <div class="ia-mode-card-desc">Parlez dans le micro — l'IA évalue votre prononciation</div>
+    <div class="ia-mode-card-pill" style="background:#EF4444">Parler →</div>
+  </button>
+
+  <!-- Écrire -->
+  <button class="ia-mode-card" data-goto-tab="ecrire">
+    <div class="ia-mode-card-illo illo-ecrire">
+      <svg viewBox="0 0 80 80" width="64" height="64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Feuille -->
+        <rect x="12" y="8" width="48" height="58" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="2"/>
+        <!-- Lignes écrites -->
+        <rect x="20" y="20" width="32" height="3" rx="1.5" fill="#86EFAC"/>
+        <rect x="20" y="28" width="24" height="3" rx="1.5" fill="#86EFAC"/>
+        <!-- Texte Adlam écrit -->
+        <text x="20" y="44" font-family="Noto Sans Adlam,serif" font-size="10" fill="#16A34A">𞤼𞤢𞤥</text>
+        <!-- Crayon -->
+        <rect x="52" y="44" width="6" height="24" rx="2" fill="#F59E0B" transform="rotate(-35 55 52)"/>
+        <polygon points="55,66 58,72 52,70" fill="#F97316" transform="rotate(-35 55 52)"/>
+        <rect x="52" y="44" width="6" height="5" rx="1" fill="#9CA3AF" transform="rotate(-35 55 52)"/>
+      </svg>
+    </div>
+    <div class="ia-mode-card-label">✍️ Écrire</div>
+    <div class="ia-mode-card-desc">Transcrivez des phrases en Adlam avec le clavier virtuel</div>
+    <div class="ia-mode-card-pill" style="background:#22C55E">Écrire →</div>
+  </button>
+
+  <!-- Converser -->
+  <button class="ia-mode-card" data-goto-tab="converser">
+    <div class="ia-mode-card-illo illo-conv">
+      <svg viewBox="0 0 80 80" width="64" height="64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Bulle gauche (utilisateur) -->
+        <rect x="6" y="10" width="44" height="24" rx="10" fill="#A78BFA"/>
+        <polygon points="16,34 10,44 22,34" fill="#A78BFA"/>
+        <text x="12" y="26" font-size="8" fill="#fff" font-weight="bold">Bonjour</text>
+        <!-- Bulle droite (IA) -->
+        <rect x="30" y="44" width="44" height="24" rx="10" fill="#6366F1"/>
+        <polygon points="64,44 70,34 58,44" fill="#6366F1"/>
+        <text x="36" y="54" font-family="Noto Sans Adlam,serif" font-size="9" fill="#fff">𞤼𞤢𞤥</text>
+        <text x="36" y="64" font-size="7" fill="rgba(255,255,255,.85)">Jam waali !</text>
+      </svg>
+    </div>
+    <div class="ia-mode-card-label">💬 Converser</div>
+    <div class="ia-mode-card-desc">Tapez en latin ou Adlam — traduction et audio instantanés</div>
+    <div class="ia-mode-card-pill" style="background:#6366F1">Converser →</div>
+  </button>
+
+</div><!-- /ia-mode-cards -->
+
+<!-- ══ ONGLETS ════════════════════════════════════════════════════════════════ -->
+<div class="tab-bar ia-tabs" role="tablist">
+  <button class="tab-btn active" data-tab="lire"      role="tab" aria-selected="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+    Lire
+  </button>
+  <button class="tab-btn" data-tab="prononcer" role="tab">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    Prononcer
+  </button>
+  <button class="tab-btn" data-tab="ecrire" role="tab">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    Écrire
+  </button>
+  <button class="tab-btn" data-tab="converser" role="tab">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Converser
+  </button>
+</div>
+
+<!-- ══ TAB LIRE ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-lire">
+
+  <div class="ia-tab-intro illo-lire-bg">
+    <div class="ia-tab-intro-text">
+      <h3>📖 Lire en Adlam</h3>
+      <p>Explorez des phrases du quotidien en script Adlam. Cliquez sur <strong>🔊</strong> pour entendre, <strong>🎤</strong> pour vous entraîner à prononcer, <strong>✏️</strong> pour l'exercice d'écriture.</p>
+    </div>
+  </div>
+
+  <!-- Filtre catégories avec icônes -->
+  <div class="ia-filter-row">
+    <button class="filter-btn active" data-filter="all">
+      <span class="filter-ico">🌍</span> Toutes
+    </button>
+    <button class="filter-btn" data-filter="salutation">
+      <span class="filter-ico">👋</span> Salutations
+    </button>
+    <button class="filter-btn" data-filter="ecole">
+      <span class="filter-ico">📚</span> École
+    </button>
+    <button class="filter-btn" data-filter="famille">
+      <span class="filter-ico">👨‍👩‍👧</span> Famille
+    </button>
+    <button class="filter-btn" data-filter="vie">
+      <span class="filter-ico">🏡</span> Vie quotidienne
+    </button>
+  </div>
+
+  <div class="phrase-grid" id="phrase-grid">
+    {% for p in phrases %}
+    <div class="phrase-card" data-cat="{{ p.cat }}">
+      <!-- Badge catégorie illustré -->
+      <div class="phrase-cat-badge cat-{{ p.cat }}">
+        {% if p.cat == "salutation" %}👋{% elif p.cat == "ecole" %}📚{% elif p.cat == "famille" %}👨‍👩‍👧{% else %}🏡{% endif %}
+        {{ p.cat|title }}
+      </div>
+      <div class="phrase-adlam" dir="rtl">{{ p.adlam }}</div>
+      <div class="phrase-latin">{{ p.latin }}</div>
+      <div class="phrase-fr">🇫🇷 {{ p.fr }}</div>
+      <div class="phrase-card-actions">
+        <button class="speak-btn speak-btn-sm"
+                data-audio-url="/api/v1/audio/texte/?texte={{ p.latin|urlencode }}&lang=fr"
+                title="Écouter" aria-label="Écouter">🔊</button>
+        <button class="micro-btn speak-btn speak-btn-sm"
+                data-latin="{{ p.latin }}" data-fr="{{ p.fr }}"
+                title="Prononcer">🎤</button>
+        <button class="ia-learn-btn speak-btn speak-btn-sm"
+                data-latin="{{ p.latin }}" data-adlam="{{ p.adlam }}" data-fr="{{ p.fr }}"
+                title="S'entraîner à écrire">✏️</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <p class="alphabet-search-empty" id="phrase-empty" style="display:none">Aucune phrase dans cette catégorie.</p>
+
+</div><!-- /tab-lire -->
+
+<!-- ══ TAB PRONONCER ══════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-prononcer">
+
+  <div class="micro-not-supported alert alert-warning" id="micro-not-supported" style="display:none">
+    ⚠️ La reconnaissance vocale n'est pas disponible dans ce navigateur.<br>
+    Utilisez <strong>Google Chrome</strong> ou <strong>Microsoft Edge</strong>.
+  </div>
+
+  <div id="micro-guided">
+
+    <!-- Intro illustrée -->
+    <div class="ia-tab-intro illo-micro-bg">
+      <div class="ia-tab-intro-text">
+        <h3>🎤 Entraînement à la prononciation</h3>
+        <p>Une phrase s'affiche. Appuyez sur le <strong>bouton rouge</strong>, prononcez-la clairement, et l'IA vous donne un score et des conseils.</p>
+      </div>
+      <div class="ia-tab-intro-illo" aria-hidden="true">
+        <svg viewBox="0 0 100 80" width="100" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="30" r="22" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+          <rect x="42" y="14" width="16" height="26" rx="8" fill="rgba(255,255,255,.9)"/>
+          <path d="M32 30 Q32 46 50 46 Q68 46 68 30" stroke="rgba(255,255,255,.9)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <line x1="50" y1="46" x2="50" y2="56" stroke="rgba(255,255,255,.9)" stroke-width="2"/>
+          <line x1="42" y1="56" x2="58" y2="56" stroke="rgba(255,255,255,.9)" stroke-width="2"/>
+          <path d="M72 24 Q80 32 72 40" stroke="rgba(255,255,255,.6)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M76 20 Q88 32 76 44" stroke="rgba(255,255,255,.4)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Score badge -->
+          <circle cx="82" cy="65" r="12" fill="#22C55E"/>
+          <text x="78" y="70" font-size="9" font-weight="bold" fill="#fff">95%</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Phrase cible -->
+    <div class="card ia-target-card prononcer-card" id="prononcer-target-card">
+      <div class="prononcer-card-num">Phrase <span id="prononcer-num">1</span> / {{ phrases|length }}</div>
+      <div class="prononcer-fr" id="prononcer-fr">Chargement…</div>
+      <div class="prononcer-adlam adlam-text" dir="rtl" id="prononcer-adlam"></div>
+      <div class="prononcer-latin" id="prononcer-latin"></div>
+    </div>
+
+    <!-- Zone micro centrale -->
+    <div class="micro-zone">
+      <button class="micro-big-btn" id="micro-start-btn" type="button" aria-label="Démarrer l'enregistrement">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+          <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+        <span class="micro-label">Appuyer pour parler</span>
+      </button>
+
+      <div class="micro-listening" id="micro-listening" style="display:none">
+        <div class="micro-wave"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="micro-live-text" id="micro-live-text">En écoute…</div>
+        <button class="btn btn-outline btn-sm" id="micro-stop-btn" type="button">⏹ Arrêter</button>
+      </div>
+    </div>
+
+    <!-- Résultat prononciation -->
+    <div class="micro-result card" id="micro-result" style="display:none">
+      <div class="micro-result-row">
+        <span class="result-label">Vous avez dit</span>
+        <span class="micro-said" id="micro-said"></span>
+      </div>
+      <div class="micro-result-row">
+        <span class="result-label">Attendu</span>
+        <span class="micro-expected" id="micro-expected"></span>
+      </div>
+      <div class="micro-score-wrap">
+        <div class="micro-score-circle" id="micro-score-circle"><span id="micro-score-pct">—</span></div>
+        <div>
+          <div class="micro-score-label" id="micro-score-label">—</div>
+          <div class="micro-score-detail" id="micro-score-detail"></div>
+        </div>
+      </div>
+      <div id="micro-diff" class="diff-display"></div>
+      <div class="ia-ecrire-actions">
+        <button class="btn btn-secondary" id="prononcer-audio-btn">🔊 Écouter la bonne prononciation</button>
+        <button class="btn btn-outline"   id="prononcer-retry-btn">🔄 Réessayer</button>
+        <button class="btn btn-primary"   id="prononcer-suivant-btn">⏭ Phrase suivante</button>
+      </div>
+    </div>
+
+    <div class="ia-progress-row" style="margin-top:1.25rem">
+      <span id="prononcer-score-label">Score : 0 pt</span>
+      <div class="ia-progress-bar-wrap">
+        <div class="ia-progress-bar" id="prononcer-progress-bar" style="width:0%"></div>
+      </div>
+      <span id="prononcer-count">0 / {{ phrases|length }}</span>
+    </div>
+
+  </div>
+</div><!-- /tab-prononcer -->
+
+<!-- ══ TAB ÉCRIRE ══════════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-ecrire">
+
+  <div class="ia-tab-intro illo-ecrire-bg">
+    <div class="ia-tab-intro-text">
+      <h3>✍️ Écriture en Adlam</h3>
+      <p>Lisez la phrase en français, puis écrivez-la en Adlam avec le clavier virtuel. L'IA corrige votre réponse et affiche les différences en couleur.</p>
+    </div>
+    <div class="ia-tab-intro-illo" aria-hidden="true">
+      <svg viewBox="0 0 100 80" width="90" height="72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="60" height="60" rx="8" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
+        <text x="16" y="32" font-family="Noto Sans Adlam,serif" font-size="14" fill="rgba(255,255,255,.95)">𞤼𞤢𞤥</text>
+        <text x="16" y="52" font-family="Noto Sans Adlam,serif" font-size="12" fill="rgba(255,255,255,.7)">𞤶𞤢𞤥</text>
+        <rect x="74" y="38" width="6" height="22" rx="2" fill="#FDE68A" transform="rotate(-30 77 49)"/>
+        <polygon points="77,60 80,68 74,65" fill="#F59E0B" transform="rotate(-30 77 49)"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card ia-target-card" id="ecrire-target-card">
+    <div class="ecrire-card-label">Traduisez en Adlam :</div>
+    <div class="ia-target-fr" id="ecrire-fr">Chargement…</div>
+    <div class="ia-target-hint" id="ecrire-hint" style="display:none"></div>
+  </div>
+
+  <div class="adlam-input-group" style="margin-bottom:1rem">
+    <textarea id="ecrire-input" class="adlam-input" dir="rtl"
+              placeholder="𞤌𞤣𞤫𞤤𞤭 𞤀𞤣𞤤𞤢𞤥 𞤫 𞤲𞤣𞤫𞤪…"
+              rows="2" aria-label="Votre réponse en Adlam"></textarea>
+  </div>
+
+  <div id="clavier-ecrire"></div>
+
+  <div class="ia-ecrire-actions">
+    <button class="btn btn-secondary" id="ecrire-hint-btn">💡 Indice</button>
+    <button class="btn btn-secondary" id="ecrire-audio-btn">🔊 Écouter</button>
+    <button class="btn btn-primary"   id="ecrire-valider">✅ Corriger avec l'IA</button>
+    <button class="btn btn-outline"   id="ecrire-suivant">⏭ Suivante</button>
+  </div>
+
+  <div class="feedback-panel" id="ecrire-feedback" style="display:none">
+    <div id="ecrire-feedback-msg"></div>
+    <div id="ecrire-diff" class="diff-display"></div>
+    <div class="ia-correct-answer" id="ecrire-correct" style="display:none">
+      <span class="result-label">Réponse correcte</span>
+      <span class="adlam-text" dir="rtl" id="ecrire-correct-adlam"></span>
+      <button class="speak-btn speak-btn-sm" id="ecrire-correct-audio" title="Écouter">🔊</button>
+    </div>
+  </div>
+
+  <div class="ia-progress-row">
+    <span id="ecrire-score-label">Score : 0 pt</span>
+    <div class="ia-progress-bar-wrap">
+      <div class="ia-progress-bar" id="ecrire-progress-bar" style="width:0%"></div>
+    </div>
+    <span id="ecrire-count">0 / {{ phrases|length }}</span>
+  </div>
+
+</div><!-- /tab-ecrire -->
+
+<!-- ══ TAB CONVERSER ══════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-converser">
+
+  <div class="ia-tab-intro illo-conv-bg">
+    <div class="ia-tab-intro-text">
+      <h3>💬 Conversation libre</h3>
+      <p>Tapez du Pulaar en <strong>latin</strong> ou directement en <strong>𞤀𞤣𞤤𞤢𞤥</strong>. L'IA convertit, prononce et conserve l'historique de votre session.</p>
+    </div>
+    <div class="ia-tab-intro-illo" aria-hidden="true">
+      <svg viewBox="0 0 100 80" width="90" height="72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6"  y="8"  width="54" height="26" rx="10" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/>
+        <text x="12" y="26" font-size="10" fill="#fff" font-weight="bold">Bonjour !</text>
+        <polygon points="18,34 12,46 28,34" fill="rgba(255,255,255,.25)"/>
+        <rect x="40" y="46" width="54" height="26" rx="10" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
+        <text x="46" y="56" font-family="Noto Sans Adlam,serif" font-size="10" fill="#fff">𞤼𞤢𞤥</text>
+        <text x="46" y="68" font-size="8" fill="rgba(255,255,255,.85)">Jam waali</text>
+        <polygon points="82,46 88,34 72,46" fill="rgba(255,255,255,.2)"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="ia-conv-wrap">
+    <div class="ia-conv-input-row">
+      <textarea id="conv-input" class="form-control"
+                placeholder="Tapez du Pulaar… (latin ou 𞤀𞤣𞤤𞤢𞤥)"
+                rows="3" style="resize:vertical"></textarea>
+      <div class="ia-conv-controls">
+        <button class="btn btn-primary" id="conv-envoyer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Envoyer
+        </button>
+      </div>
+    </div>
+
+    <div id="conv-result" class="ia-conv-result" style="display:none">
+      <div class="ia-conv-bubble ia-conv-bubble-user" id="conv-bubble-user"></div>
+      <div class="ia-conv-bubble ia-conv-bubble-bot" id="conv-bubble-bot">
+        <div class="ia-conv-row">
+          <span class="result-label">Adlam</span>
+          <span class="adlam-text ia-conv-adlam" dir="rtl" id="conv-adlam"></span>
+          <button class="speak-btn speak-btn-sm" id="conv-audio-adlam" title="Écouter">🔊</button>
+        </div>
+        <div class="ia-conv-row">
+          <span class="result-label">Latin</span>
+          <span id="conv-latin" style="font-weight:700"></span>
+          <button class="speak-btn speak-btn-sm" id="conv-audio-latin" title="Écouter">🔊</button>
+        </div>
+        <div class="ia-conv-row" id="conv-correction-row" style="display:none">
+          <span class="result-label">Correction IA</span>
+          <span id="conv-correction-msg" style="color:var(--duo-orange)"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ia-conv-history-header" id="conv-history-header" style="display:none">
+      <span>🕐 Historique de session</span>
+      <button class="btn btn-outline btn-sm" id="conv-clear-btn">Effacer</button>
+    </div>
+    <div id="conv-history" class="ia-conv-history"></div>
+  </div>
+
+</div><!-- /tab-converser -->
+
+</div><!-- /ia-page -->
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/micro.js' %}"></script>
+<script src="{% static 'js/clavier_adlam.js' %}"></script>
+<script src="{% static 'js/apprendre_ia.js' %}"></script>
+{% endblock %}

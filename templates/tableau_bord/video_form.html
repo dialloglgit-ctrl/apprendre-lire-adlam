@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ page_title }} – PROMET Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f1;color:#1d2327;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wp-sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:#1d2327;overflow-y:auto;z-index:100}
+.wp-brand{padding:1.25rem 1.5rem;border-bottom:1px solid #2c3338;display:flex;align-items:center;gap:.75rem}
+.wp-brand-icon{font-family:'Noto Sans Adlam',serif;font-size:1.8rem;color:#2271b1}
+.wp-brand-name{color:#fff;font-weight:800;font-size:1rem}
+.wp-brand-sub{color:#8c8f94;font-size:.72rem}
+.wp-nav{padding:.75rem 0}
+.wp-nav-section{color:#8c8f94;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.6rem 1.5rem .3rem}
+.wp-nav a{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.5rem;color:#c3c4c7;font-size:.875rem;transition:background .15s}
+.wp-nav a:hover,.wp-nav a.active{background:#2c3338;color:#72aee6}
+.wp-nav a.active{border-left:3px solid #2271b1}
+.nav-ico{width:20px;text-align:center;flex-shrink:0}
+.wp-main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
+.wp-topbar{background:#1d2327;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:90}
+.wp-topbar-title{color:#a7aaad;font-size:.82rem}
+.wp-topbar-right{display:flex;align-items:center;gap:1rem}
+.wp-topbar-right a{color:#a7aaad;font-size:.8rem;padding:.3rem .65rem;border-radius:4px}
+.wp-topbar-right a:hover{background:#2c3338;color:#fff}
+.wp-topbar-avatar{width:26px;height:26px;border-radius:50%;background:#2271b1;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.75rem}
+.wp-content{flex:1;padding:2rem;max-width:800px}
+.wp-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem}
+.wp-page-title{font-size:1.5rem;font-weight:700}
+.wp-card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.07);padding:1.75rem;margin-bottom:1.5rem}
+/* Formulaire */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:.4rem}
+.form-group label{font-size:.75rem;font-weight:700;color:#646970;text-transform:uppercase;letter-spacing:.04em}
+.form-group input,.form-group select,.form-group textarea{
+  border:1px solid #c3c4c7;border-radius:6px;padding:.55rem .75rem;font-size:.9rem;font-family:inherit;background:#fff;width:100%}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  outline:none;border-color:#2271b1;box-shadow:0 0 0 2px rgba(34,113,177,.15)}
+.form-group textarea{min-height:90px;resize:vertical}
+.form-group .help{font-size:.72rem;color:#8c8f94;margin-top:.2rem}
+.form-check{display:flex;align-items:center;gap:.5rem;cursor:pointer}
+.form-check input{width:auto}
+.btn-save{background:#2271b1;color:#fff;border:0;border-radius:6px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:700;cursor:pointer;transition:background .15s}
+.btn-save:hover{background:#135e96}
+.btn-cancel{background:#f6f7f7;color:#1d2327;border:1px solid #dcdcde;border-radius:6px;padding:.65rem 1.25rem;font-size:.9rem;font-weight:700;text-decoration:none;margin-left:.5rem}
+.btn-cancel:hover{background:#fff;border-color:#2271b1;color:#2271b1}
+.alert-error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:6px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem}
+/* Aperçu miniature */
+.thumb-preview{margin-top:.5rem;max-width:160px;border-radius:6px;display:none}
+@media(max-width:782px){.wp-sidebar{display:none}.wp-main{margin-left:0}}
+</style>
+</head>
+<body>
+
+<aside class="wp-sidebar">
+  <div class="wp-brand">
+    <span class="wp-brand-icon">𞤆</span>
+    <div><div class="wp-brand-name">PROMET Admin</div><div class="wp-brand-sub">Plateforme Adlam</div></div>
+  </div>
+  <nav class="wp-nav">
+    <div class="wp-nav-section">Principal</div>
+    <a href="{% url 'tableau_bord' %}"><span class="nav-ico">🏠</span> Tableau de bord</a>
+    <a href="/"><span class="nav-ico">🌐</span> Voir le site</a>
+    <div class="wp-nav-section">Contenu</div>
+    <a href="{% url 'tb_lettres' %}"><span class="nav-ico">🔤</span> Lettres Adlam</a>
+    <a href="{% url 'tb_lecons' %}"><span class="nav-ico">📘</span> Leçons</a>
+    <a href="{% url 'tb_exercices' %}"><span class="nav-ico">🎯</span> Exercices</a>
+    <a href="{% url 'tb_videos' %}" class="active"><span class="nav-ico">🎬</span> Vidéos</a>
+    <div class="wp-nav-section">Utilisateurs</div>
+    <a href="{% url 'tb_utilisateurs' %}"><span class="nav-ico">👥</span> Utilisateurs</a>
+    <a href="{% url 'tb_progressions' %}"><span class="nav-ico">📈</span> Progressions</a>
+    <div class="wp-nav-section">Système</div>
+    <a href="/admin/"><span class="nav-ico">⚙️</span> Django Admin</a>
+    <a href="{% url 'tb_logout' %}"><span class="nav-ico">🚪</span> Déconnexion</a>
+  </nav>
+</aside>
+
+<div class="wp-main">
+  <div class="wp-topbar">
+    <span class="wp-topbar-title">PROMET · {{ page_title }}</span>
+    <div class="wp-topbar-right">
+      <a href="/">🌐 Site</a>
+      <a href="{% url 'tb_videos' %}">← Retour</a>
+    </div>
+  </div>
+  <div class="wp-content">
+    <div class="wp-page-header">
+      <h1 class="wp-page-title">{{ page_title }}</h1>
+    </div>
+
+    {% if erreur %}
+    <div class="alert-error">⚠️ {{ erreur }}</div>
+    {% endif %}
+
+    <div class="wp-card">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-grid">
+
+          <!-- Titre -->
+          <div class="form-group form-full">
+            <label for="id_titre">Titre *</label>
+            <input type="text" id="id_titre" name="titre" required
+                   value="{{ video.titre|default:form.titre|default:'' }}"
+                   placeholder="Ex: Leçon 1 – Les premières lettres Adlam">
+          </div>
+
+          <!-- URL -->
+          <div class="form-group form-full">
+            <label for="id_url">URL de la vidéo *</label>
+            <input type="url" id="id_url" name="url" required
+                   value="{{ video.url|default:form.url|default:'' }}"
+                   placeholder="https://www.youtube.com/watch?v=...">
+            <span class="help">YouTube, Vimeo ou lien direct. La miniature sera auto-détectée pour YouTube.</span>
+          </div>
+
+          <!-- Miniature -->
+          <div class="form-group form-full">
+            <label for="id_miniature">Miniature personnalisée <small>(optionnel)</small></label>
+            <input type="url" id="id_miniature" name="miniature"
+                   value="{{ video.miniature|default:form.miniature|default:'' }}"
+                   placeholder="https://…/image.jpg">
+            <img id="thumb-preview" class="thumb-preview" src="" alt="">
+          </div>
+
+          <!-- Description -->
+          <div class="form-group form-full">
+            <label for="id_description">Description</label>
+            <textarea id="id_description" name="description"
+                      placeholder="Courte description du contenu de la vidéo…">{{ video.description|default:form.description|default:'' }}</textarea>
+          </div>
+
+          <!-- Catégorie -->
+          <div class="form-group">
+            <label for="id_categorie">Catégorie</label>
+            <select id="id_categorie" name="categorie">
+              {% for code, label in cat_choices %}
+              <option value="{{ code }}"
+                {% if video.categorie == code or form.categorie == code %}selected{% endif %}>
+                {{ label }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Niveau -->
+          <div class="form-group">
+            <label for="id_niveau">Niveau</label>
+            <select id="id_niveau" name="niveau">
+              <option value="debutant"       {% if video.niveau == 'debutant'       or form.niveau == 'debutant'       %}selected{% endif %}>Débutant</option>
+              <option value="intermediaire"  {% if video.niveau == 'intermediaire'  or form.niveau == 'intermediaire'  %}selected{% endif %}>Intermédiaire</option>
+              <option value="avance"         {% if video.niveau == 'avance'         or form.niveau == 'avance'         %}selected{% endif %}>Avancé</option>
+            </select>
+          </div>
+
+          <!-- Leçon liée -->
+          <div class="form-group">
+            <label for="id_lecon">Leçon liée <small>(optionnel)</small></label>
+            <select id="id_lecon" name="lecon">
+              <option value="">— Aucune leçon —</option>
+              {% for l in lecons %}
+              <option value="{{ l.pk }}"
+                {% if video.lecon_id == l.pk or form.lecon_id == l.pk|stringformat:"s" %}selected{% endif %}>
+                {{ l.titre }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Ordre -->
+          <div class="form-group">
+            <label for="id_ordre">Ordre d'affichage</label>
+            <input type="number" id="id_ordre" name="ordre" min="0"
+                   value="{{ video.ordre|default:form.ordre|default:'0' }}">
+          </div>
+
+          <!-- Publié -->
+          <div class="form-group form-full">
+            <label class="form-check">
+              <input type="checkbox" name="publie"
+                {% if video.publie or form.publie or not video and not form %}checked{% endif %}>
+              Publier cette vidéo (visible sur le site)
+            </label>
+          </div>
+
+        </div><!-- /form-grid -->
+
+        <div style="margin-top:1.5rem">
+          <button type="submit" class="btn-save">
+            {% if video %}💾 Enregistrer les modifications{% else %}➕ Ajouter la vidéo{% endif %}
+          </button>
+          <a href="{% url 'tb_videos' %}" class="btn-cancel">Annuler</a>
+        </div>
+      </form>
+    </div><!-- /wp-card -->
+  </div>
+</div>
+
+<script>
+// Aperçu miniature auto
+const urlInput   = document.getElementById('id_url');
+const thumbInput = document.getElementById('id_miniature');
+const thumbImg   = document.getElementById('thumb-preview');
+
+function updateThumb() {
+  const src = thumbInput.value.trim() || youtubeThumb(urlInput.value.trim());
+  if (src) { thumbImg.src = src; thumbImg.style.display = 'block'; }
+  else      { thumbImg.style.display = 'none'; }
+}
+function youtubeThumb(url) {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  return m ? `https://img.youtube.com/vi/${m[1]}/mqdefault.jpg` : '';
+}
+urlInput.addEventListener('input', updateThumb);
+thumbInput.addEventListener('input', updateThumb);
+updateThumb();
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+{% extends 'tableau_bord/liste_base.html' %}
+{% block table %}
+<style>
+.book-cover{width:54px;height:74px;object-fit:cover;border-radius:8px;border:1px solid #dbeafe;background:#f8fafc}
+.book-cover-placeholder{width:54px;height:74px;border-radius:8px;border:1px dashed #cbd5e1;background:#f8fafc;color:#94a3b8;display:inline-flex;align-items:center;justify-content:center;font-size:1.1rem}
+.book-badge{border-radius:999px;padding:.2rem .6rem;font-size:.7rem;font-weight:700}
+.book-badge-pdf{background:#fee2e2;color:#b91c1c}
+.book-badge-link{background:#dbeafe;color:#1d4ed8}
+.book-badge-publie{background:#dcfce7;color:#166534}
+.book-badge-masque{background:#fef2f2;color:#991b1b}
+.book-filters{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}
+.book-filter-btn{border:1px solid #dcdcde;background:#fff;border-radius:6px;padding:.3rem .75rem;font-size:.78rem;cursor:pointer;font-weight:600;color:#1d2327;text-decoration:none}
+.book-filter-btn.active,.book-filter-btn:hover{background:#2271b1;color:#fff;border-color:#2271b1}
+.book-desc{color:#646970;font-size:.78rem;display:block;margin-top:.2rem}
+</style>
+
+<div class="book-filters">
+  <a class="book-filter-btn {% if not publie %}active{% endif %}" href="?{% if q %}q={{ q }}&{% endif %}">Tous</a>
+  <a class="book-filter-btn {% if publie == '1' %}active{% endif %}" href="?{% if q %}q={{ q }}&{% endif %}publie=1">✅ Publiés</a>
+  <a class="book-filter-btn {% if publie == '0' %}active{% endif %}" href="?{% if q %}q={{ q }}&{% endif %}publie=0">🚫 Masqués</a>
+</div>
+
+<table class="wp-table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th></th>
+      <th>Titre</th>
+      <th>Source</th>
+      <th>Niveau</th>
+      <th>Leçon liée</th>
+      <th>Statut</th>
+      <th>Ajouté le</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for livre in livres %}
+    <tr>
+      <td style="color:#8c8f94">{{ livre.pk }}</td>
+      <td>
+        {% if livre.couverture %}
+          <img class="book-cover" src="{{ livre.couverture.url }}" alt="Couverture de {{ livre.titre }}">
+        {% else %}
+          <span class="book-cover-placeholder">📚</span>
+        {% endif %}
+      </td>
+      <td style="font-weight:700;max-width:280px">
+        <a class="action-link" href="{{ livre.access_url }}" target="_blank" rel="noopener">{{ livre.titre }}</a>
+        {% if livre.description %}<span class="book-desc">{{ livre.description|truncatechars:90 }}</span>{% endif %}
+      </td>
+      <td>
+        {% if livre.pdf %}
+          <span class="book-badge book-badge-pdf">📥 PDF</span>
+        {% else %}
+          <span class="book-badge book-badge-link">🔗 Lien</span>
+        {% endif %}
+      </td>
+      <td><span class="badge-niveau badge-{{ livre.niveau }}">{{ livre.niveau }}</span></td>
+      <td style="color:#646970;font-size:.78rem">{{ livre.lecon.titre|default:'—' }}</td>
+      <td>
+        {% if livre.publie %}
+          <span class="book-badge book-badge-publie">✅ Publié</span>
+        {% else %}
+          <span class="book-badge book-badge-masque">🚫 Masqué</span>
+        {% endif %}
+      </td>
+      <td style="color:#8c8f94;font-size:.78rem">{{ livre.date_ajout|date:'d/m/Y' }}</td>
+      <td>
+        <a class="action-link" href="{% url 'tb_livre_modifier' livre.pk %}">Modifier</a>
+        <a class="action-link" href="{{ livre.access_url }}" target="_blank" rel="noopener">Ouvrir</a>
+        <form method="post" action="{% url 'tb_livre_supprimer' livre.pk %}" style="display:inline" onsubmit="return confirm('Supprimer « {{ livre.titre }} » ?')">
+          {% csrf_token %}
+          <button type="submit" class="action-del" style="background:none;border:0;cursor:pointer;font-size:.78rem">Supprimer</button>
+        </form>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="9" class="empty-msg">Aucun livre — <a class="action-link" href="{% url 'tb_livre_ajouter' %}">Ajouter un livre</a></td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

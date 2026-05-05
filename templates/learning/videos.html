@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static ui_tags %}
+
+{% block titre %}Vidéos d'apprentissage | PROMET{% endblock %}
+
+{% block contenu %}
+<section class="vid-page">
+
+  <!-- Hero ─────────────────────────────────────────────────────────── -->
+  <div class="vid-hero">
+    <div class="vid-hero-text">
+      <span class="vid-kicker">📺 Bibliothèque</span>
+      <h1>{% tr 'nav.videos' %}</h1>
+      <p>Apprends le Pulaar, maîtrise l'écriture Adlam et perfectionne ta prononciation grâce à des ressources vidéo soigneusement sélectionnées.</p>
+      {% if total_videos %}
+      <span style="display:inline-block;margin-top:.5rem;background:#22c55e22;color:#166534;border-radius:999px;padding:.25rem .9rem;font-size:.82rem;font-weight:700">
+        🎬 {{ total_videos }} vidéo{{ total_videos|pluralize }} disponible{{ total_videos|pluralize }}
+      </span>
+      {% endif %}
+    </div>
+    <svg class="vid-hero-svg" viewBox="0 0 160 120" width="160" aria-hidden="true">
+      <rect x="10" y="20" width="140" height="85" rx="10" fill="#1e293b"/>
+      <rect x="14" y="24" width="132" height="73" rx="8" fill="#0f172a"/>
+      <polygon points="62,46 62,78 98,62" fill="#22c55e"/>
+      <rect x="20" y="103" width="120" height="6" rx="3" fill="#1e293b"/>
+      <rect x="55" y="109" width="50" height="8" rx="4" fill="#334155"/>
+    </svg>
+  </div>
+
+  <!-- Barre de recherche YouTube ───────────────────────────────────── -->
+  <div class="vid-search-bar">
+    <span class="vid-search-icon">🔍</span>
+    <input id="vid-search-input" type="text" placeholder="Rechercher une vidéo sur YouTube…" autocomplete="off">
+    <a id="vid-search-btn" class="vid-search-go btn btn-primary btn-sm" href="#" target="_blank" rel="noopener">Rechercher</a>
+  </div>
+
+  <!-- ══ Vidéos depuis la base de données ══════════════════════════════ -->
+  {% for sec in db_sections %}
+  <div class="vid-section active" id="vid-db-{{ sec.id }}">
+    <div class="vid-section-head" style="--sec-color:{{ sec.color }}">
+      <div class="vid-section-emoji">{{ sec.emoji }}</div>
+      <div>
+        <h2>{{ sec.title }}</h2>
+        <p>{{ sec.videos|length }} vidéo{{ sec.videos|length|pluralize }}</p>
+      </div>
+    </div>
+
+    <div class="vid-cards">
+      {% for v in sec.videos %}
+      <div class="vid-card vid-card-db">
+        {% if v.miniature_auto %}
+        <a href="{{ v.embed_url }}" target="_blank" rel="noopener noreferrer" class="vid-card-thumb-link">
+          <img class="vid-card-thumb-img" src="{{ v.miniature_auto }}" alt="{{ v.titre }}" loading="lazy">
+          <span class="vid-play-btn">▶</span>
+        </a>
+        {% else %}
+        <a href="{{ v.url }}" target="_blank" rel="noopener noreferrer" class="vid-card-thumb-link">
+          <div class="vid-card-thumb" style="--sec-color:{{ sec.color }}">
+            <svg viewBox="0 0 80 50" width="80" aria-hidden="true">
+              <rect width="80" height="50" rx="6" fill="{{ sec.color }}" opacity=".18"/>
+              <polygon points="30,14 30,36 52,25" fill="{{ sec.color }}"/>
+            </svg>
+          </div>
+        </a>
+        {% endif %}
+        <div class="vid-card-body">
+          <strong>{{ v.titre }}</strong>
+          {% if v.description %}<span>{{ v.description|truncatechars:80 }}</span>{% endif %}
+          {% if v.lecon %}<em style="color:#2271b1">📘 {{ v.lecon.titre }}</em>{% endif %}
+          <a href="{{ v.url }}" target="_blank" rel="noopener noreferrer" class="vid-card-cta">▶ Regarder</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- ══ Section YouTube (toujours présente) ═══════════════════════════ -->
+  <div class="vid-section active" id="vid-{{ yt_section.id }}">
+    <div class="vid-section-head" style="--sec-color:{{ yt_section.color }}">
+      <div class="vid-section-emoji">{{ yt_section.emoji }}</div>
+      <div>
+        <h2>{{ yt_section.title }}</h2>
+        <p>{{ yt_section.subtitle }}</p>
+      </div>
+      <a class="vid-yt-all btn btn-outline btn-sm"
+         href="https://www.youtube.com/results?search_query={{ yt_section.yt_search }}"
+         target="_blank" rel="noopener noreferrer">
+        ▶ Tout voir sur YouTube
+      </a>
+    </div>
+
+    {% if yt_section.channel_url %}
+    <a class="vid-channel-card" href="{{ yt_section.channel_url }}" target="_blank" rel="noopener noreferrer"
+       style="--sec-color:{{ yt_section.color }}">
+      <div class="vid-channel-avatar">
+        <svg viewBox="0 0 44 44" width="44" aria-hidden="true">
+          <circle cx="22" cy="22" r="22" fill="{{ yt_section.color }}"/>
+          <text x="22" y="29" text-anchor="middle" font-size="20" fill="#fff" font-family="sans-serif">▶</text>
+        </svg>
+      </div>
+      <div class="vid-channel-info">
+        <strong>🎥 {{ yt_section.channel_name }}</strong>
+        <span>{{ yt_section.channel_desc }}</span>
+      </div>
+      <div class="vid-channel-cta">Voir la chaîne →</div>
+    </a>
+    {% endif %}
+
+    <div class="vid-cards">
+      {% for card in yt_section.cards %}
+      <a class="vid-card"
+         href="https://www.youtube.com/results?search_query={{ card.yt }}"
+         target="_blank" rel="noopener noreferrer">
+        <div class="vid-card-thumb" style="--sec-color:{{ yt_section.color }}">
+          <svg viewBox="0 0 80 50" width="80" aria-hidden="true">
+            <rect width="80" height="50" rx="6" fill="{{ yt_section.color }}" opacity=".18"/>
+            <polygon points="30,14 30,36 52,25" fill="{{ yt_section.color }}"/>
+          </svg>
+        </div>
+        <div class="vid-card-body">
+          <strong>{{ card.title }}</strong>
+          <span>{{ card.desc }}</span>
+          <em>▶ Voir sur YouTube</em>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+</section>
+
+<style>
+.vid-card-db { position:relative; }
+.vid-card-thumb-link { display:block; position:relative; }
+.vid-card-thumb-img { width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:8px 8px 0 0; display:block; }
+.vid-play-btn {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:rgba(0,0,0,.65); color:#fff; border-radius:50%;
+  width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem; pointer-events:none; transition:background .2s;
+}
+.vid-card-thumb-link:hover .vid-play-btn { background:rgba(220,38,38,.85); }
+.vid-card-cta {
+  display:inline-block; margin-top:.5rem; font-size:.75rem; font-weight:700;
+  color:#2271b1; text-decoration:none;
+}
+.vid-card-cta:hover { text-decoration:underline; }
+</style>
+
+{% block extra_js %}
+<script>
+(function(){
+  const input = document.getElementById('vid-search-input');
+  const btn   = document.getElementById('vid-search-btn');
+  function updateLink(){
+    const q = input.value.trim();
+    btn.href = q
+      ? 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q + ' pulaar adlam')
+      : '#';
+  }
+  input.addEventListener('input', updateLink);
+  input.addEventListener('keydown', e => { if(e.key === 'Enter' && input.value.trim()) btn.click(); });
+})();
+</script>
+{% endblock %}
+{% endblock %}

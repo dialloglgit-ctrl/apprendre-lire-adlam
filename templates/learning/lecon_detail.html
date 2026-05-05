@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{{ lecon.titre }} – PROMET{% endblock %}
+
+{% block contenu %}
+<div>
+  <a href="{% url 'lecons' %}" class="btn btn-outline btn-sm">← {% tr 'common.back_lessons' %}</a>
+
+  <div class="lesson-hero" style="margin-top:1rem">
+    <div class="lesson-hero-icon">📘</div>
+    <div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.35rem">
+        <span class="badge badge-{{ lecon.niveau }}">{{ lecon.niveau|level_label:ui_lang }}</span>
+        {% if terminee %}<span class="badge badge-association">✓ {% tr 'lessons.completed' %}</span>{% endif %}
+      </div>
+      <h1>{{ lecon.titre }}</h1>
+      <p style="margin:0;color:var(--text-muted)">{{ lecon.description }}</p>
+    </div>
+  </div>
+
+  <div class="lesson-content-box adlam-contenu">
+    {{ lecon.contenu|linebreaks }}
+  </div>
+
+  {% if lecon.lettres.all %}
+  <div class="card" style="margin-bottom:1rem">
+    <h2 style="margin-bottom:.75rem">{% tr 'lesson.letters' %}</h2>
+    <div class="alphabet-grid">
+      {% for lettre in lecon.lettres.all %}
+      <a href="{% url 'lettre_detail' lettre.pk %}" class="letter-card">
+        <span class="letter-adlam-big" dir="rtl">{{ lettre.caractere }}</span>
+        <span class="letter-latin">{{ lettre.transliteration }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if exercices %}
+  <div class="card" style="margin-bottom:1rem">
+    <h2 style="margin-bottom:.75rem">{% tr 'lesson.exercises' %}</h2>
+      {% for ex in exercices %}
+      <a href="{% url 'exercice_detail' ex.pk %}" class="exercise-list-item type-{{ ex.type_exercice }}">
+        <div class="exercise-type-icon">
+          {% if ex.type_exercice == 'qcm' %}❓{% elif ex.type_exercice == 'dictee' %}✍️{% elif ex.type_exercice == 'association' %}🧩{% else %}📝{% endif %}
+        </div>
+        <div style="flex:1">
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.25rem">
+            <span class="badge badge-{{ ex.type_exercice }}">{{ ex.type_exercice|exercise_type_label:ui_lang }}</span>
+            <span class="badge badge-{{ ex.niveau }}">{{ ex.niveau|level_label:ui_lang }}</span>
+          </div>
+          <div style="font-weight:800">{{ ex.question|truncatechars:90 }}</div>
+        </div>
+      </a>
+      {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if user.is_authenticated and not terminee %}
+  <form method="post" action="{% url 'terminer_lecon' lecon.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary btn-lg">✓ {% tr 'lesson.mark_done' %}</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

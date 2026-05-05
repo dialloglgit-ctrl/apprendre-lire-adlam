@@ -1,0 +1,32 @@
+﻿{% extends 'tableau_bord/liste_base.html' %}
+{% block page_title %}Témoignages{% endblock %}
+{% block page_header %}Témoignages{% endblock %}
+{% block list_content %}
+<div class="wp-list-meta">{{ temoignages.count }} témoignage{{ temoignages.count|pluralize }} — <strong style="color:#ca4a1f">{{ nb_attente }}</strong> en attente</div>
+<div class="wp-card">
+  <table class="wp-table">
+    <thead><tr><th>#</th><th>Nom</th><th>Pays</th><th>Note</th><th>Message</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for t in temoignages %}
+    <tr style="{% if not t.approuve %}background:#fffbe6{% endif %}">
+      <td>{{ t.pk }}</td>
+      <td>{{ t.nom }}</td>
+      <td>{{ t.pays|default:"—" }}</td>
+      <td>{{ t.note }}★</td>
+      <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.message }}</td>
+      <td>{{ t.date|date:"d/m/Y" }}</td>
+      <td>{% if t.approuve %}<span style="color:green">✅ Approuvé</span>{% else %}<span style="color:#ca4a1f;font-weight:700">En attente</span>{% endif %}</td>
+      <td>
+        {% if not t.approuve %}
+        <form method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="approuver"><input type="hidden" name="pk" value="{{ t.pk }}"><button class="btn-row-edit">Approuver</button></form>
+        {% endif %}
+        <form method="post" style="display:inline" onsubmit="return confirm('Supprimer ?')">{% csrf_token %}<input type="hidden" name="action" value="supprimer"><input type="hidden" name="pk" value="{{ t.pk }}"><button class="btn-row-del">Suppr.</button></form>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8" style="text-align:center;color:#8c8f94;padding:2rem">Aucun témoignage.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

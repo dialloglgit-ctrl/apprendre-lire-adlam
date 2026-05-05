@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}{% tr 'dictation.title' %} - PROMET{% endblock %}
+
+{% block contenu %}
+<div>
+  <h1 class="section-title">{% tr 'dictation.title' %}</h1>
+  <p class="section-subtitle">{% tr 'dictation.subtitle' %}</p>
+</div>
+
+<!-- Zone d'écriture libre -->
+<section class="free-write-area">
+  <h2>{% tr 'dictation.free_zone' %}</h2>
+  <textarea id="zone-ecriture" class="free-write-textarea" dir="rtl"
+    placeholder="{% tr 'dictation.placeholder' %}" rows="4"></textarea>
+  <div class="free-write-actions">
+    <button class="btn btn-outline" id="btn-effacer">⌫ {% tr 'dictation.clear' %}</button>
+    <button class="btn btn-outline" id="btn-copier">📋 {% tr 'dictation.copy' %}</button>
+  </div>
+  <div class="keyboard-wrap">
+    <div class="keyboard-title">Clavier Adlam</div>
+    <div id="clavier-adlam" class="adlam-keyboard"></div>
+  </div>
+</section>
+
+<!-- Exercices de dictée -->
+{% if exercices %}
+<section class="card">
+  <h2>{% tr 'dictation.exercises' %}</h2>
+  {% for ex in exercices %}
+  <a href="{% url 'exercice_detail' ex.pk %}" class="exercise-list-item type-dictee">
+    <div class="exercise-type-icon">✍️</div>
+    <div style="flex:1">
+      <span class="badge badge-dictee">{% tr 'nav.dictation' %}</span>
+      <div style="font-weight:800;margin-top:.25rem">{{ ex.question|truncatechars:80 }}</div>
+    </div>
+  </a>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/clavier_adlam.js' %}"></script>
+<script>
+  document.getElementById('btn-effacer').addEventListener('click', () => {
+    document.getElementById('zone-ecriture').value = '';
+  });
+  document.getElementById('btn-copier').addEventListener('click', () => {
+    const zone = document.getElementById('zone-ecriture');
+    navigator.clipboard.writeText(zone.value);
+  });
+  // Clavier virtuel cible la zone d'écriture libre
+  window.CLAVIER_TARGET = 'zone-ecriture';
+</script>
+{% endblock %}
