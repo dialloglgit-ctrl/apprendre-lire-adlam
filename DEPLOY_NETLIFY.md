@@ -19,7 +19,27 @@ git push -u origin main
 2. Choisis GitHub puis le repo
 3. Netlify detecte `netlify.toml` automatiquement
 
-## 3) Variables d'environnement Netlify
+## 3) Parcourir les fichiers (sans GitHub)
+
+Si tu ne veux pas connecter GitHub, tu peux deployer avec l'option **Parcourir les fichiers**:
+
+1. Depuis le dossier du projet, genere d'abord les fichiers statiques:
+
+```powershell
+python manage.py collectstatic --noinput
+```
+
+2. Cree un fichier ZIP du projet **en incluant le contenu du dossier racine** (pas un dossier parent en plus).
+3. Dans Netlify: Add new site > Deploy manually > Parcourir les fichiers.
+4. Selectionne le fichier ZIP.
+5. Verifie que `netlify.toml` est bien a la racine du ZIP.
+
+Important:
+
+- Avec cette methode, Netlify ne redeploie pas automatiquement apres des changements.
+- A chaque mise a jour, recree un ZIP et redeploie manuellement.
+
+## 4) Variables d'environnement Netlify
 
 Dans Site settings > Environment variables, ajoute:
 
@@ -38,11 +58,11 @@ Si ton frontend est une app Node (React/Vite), ajoute aussi une variable fronten
 - Vite: `VITE_API_BASE_URL=https://<ton-backend>.onrender.com`
 - CRA: `REACT_APP_API_BASE_URL=https://<ton-backend>.onrender.com`
 
-## 4) Deploiement
+## 5) Deploiement
 
 Chaque `git push` sur `main` declenche un build Netlify.
 
-## 5) Backend Django separe (Render)
+## 6) Backend Django separe (Render)
 
 1. Cree un Web Service sur Render avec le depot Django.
 2. Configure ces variables backend:
@@ -55,7 +75,7 @@ Chaque `git push` sur `main` declenche un build Netlify.
 3. Build command (Render): `pip install -r requirements.txt`
 4. Start command (Render): `python manage.py migrate ; gunicorn promet.wsgi:application`
 
-## 6) DNS (si domaine personnalise)
+## 7) DNS (si domaine personnalise)
 
 - Cote Netlify (frontend):
 	- Domaine racine: enregistrements A vers Netlify (selon instructions Netlify)
@@ -66,13 +86,13 @@ Chaque `git push` sur `main` declenche un build Netlify.
 	- `API_BASE_URL=https://api.tondomaine.com`
 	- `CORS_ALLOWED_ORIGINS=https://tondomaine.com,https://www.tondomaine.com`
 
-## 7) Important (limites Netlify)
+## 8) Important (limites Netlify)
 
 - Les fichiers `media/` (uploads image/pdf) ne sont pas persistants sur Netlify Functions.
 - Pour production, stocke les medias sur Cloudinary, S3, ou Supabase Storage.
 - SQLite n'est pas recommande en production serverless; prefere PostgreSQL.
 
-## 8) Test local rapide avant push
+## 9) Test local rapide avant push
 
 ```powershell
 python -m pip install -r requirements.txt
