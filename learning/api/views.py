@@ -19,6 +19,7 @@ from .serializers import (
     ExerciceSerializer, ExerciceDetailSerializer,
     ProgressionSerializer, SoumettreReponseSerializer,
 )
+import google.generativeai as genai
 
 
 # ── Auth ───────────────────────────────────────────────────────────────────────
@@ -371,3 +372,37 @@ def audio_texte(request):
         content_type='audio/mpeg',
         headers={'Cache-Control': 'public, max-age=86400'},
     )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def api_chat_gemini(request):
+    """
+    POST { "message": "..." }
+    Discute avec le tuteur IA (Gemini).
+    """
+    message = request.data.get('message', '').strip()
+    if not message:
+        return Response({'error': 'Message vide.'}, status=400)
+
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        from ..transliterator import latin_to_adlam
+        return Response({
+            'reply': f"Mode démo : {message}",
+            'adlam': latin_to_adlam(message)
+        })
+
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = f"Tu es un tuteur expert Pulaar/Adlam. L'élève dit: {message}. Réponds courtement avec version Adlam à la fin."
+        response = model.generate_content(prompt)
+        reply = response.text
+        from ..transliterator import latin_to_adlam
+        return Response({
+            'reply': reply,
+            'adlam': latin_to_adlam(reply)
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)

@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════════════════
    PROMET – Design PRO Duolingo
    Police : Noto Sans Adlam + Nunito
    Palette : vert Duolingo #58cc02, bleu #1cb0f6, jaune #ffc800
@@ -845,14 +845,14 @@ a:hover { text-decoration: underline; }
    DARK MODE
 ═══════════════════════════════════════════════════════════════════════════ */
 [data-theme="dark"] {
-  --bg:          #0f172a;
-  --surface:     #1e293b;
-  --surface-2:   #334155;
-  --border:      #334155;
-  --border-dk:   #475569;
-  --text:        #e2e8f0;
-  --text-muted:  #64748b;
-  --shadow-card: 0 4px 0 #0f172a;
+  --bg:          #0b1120;
+  --surface:     #1a2333;
+  --surface-2:   #2d3a4f;
+  --border:      #2d3a4f;
+  --border-dk:   #3f4e66;
+  --text:        #f1f5f9;
+  --text-muted:  #94a3b8;
+  --shadow-card: 0 4px 0 #020617;
   --shadow-sm:   0 2px 8px rgba(0,0,0,.4);
   --shadow-md:   0 4px 16px rgba(0,0,0,.5);
 }
@@ -860,14 +860,18 @@ a:hover { text-decoration: underline; }
 [data-theme="dark"] .navbar { background: var(--surface); border-color: var(--border); }
 [data-theme="dark"] .letter-card,[data-theme="dark"] .lesson-card,
 [data-theme="dark"] .exercise-card,[data-theme="dark"] .feature-card,
-[data-theme="dark"] .books-page .book-card { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .books-page .book-card { background: var(--surface); border-color: var(--border); box-shadow: 0 4px 0 var(--shadow-card); }
 [data-theme="dark"] .mobile-tabbar { background: var(--surface); border-color: var(--border); }
 [data-theme="dark"] .footer { background: var(--surface); color: var(--text-muted); }
 [data-theme="dark"] input,[data-theme="dark"] textarea,[data-theme="dark"] select {
   background: var(--surface-2); color: var(--text); border-color: var(--border-dk);
 }
-[data-theme="dark"] .card,[data-theme="dark"] .wp-card { background: var(--surface); }
+[data-theme="dark"] .card,[data-theme="dark"] .wp-card { background: var(--surface); border-color: var(--border); }
 [data-theme="dark"] a { color: #60a5fa; }
+[data-theme="dark"] .btn-outline { background: var(--surface); border-color: var(--border-dk); color: #60a5fa; box-shadow: 0 3px 0 var(--shadow-card); }
+[data-theme="dark"] .rank-card { background: rgba(26, 35, 51, 0.7); border-color: rgba(255, 255, 255, 0.1); }
+[data-theme="dark"] .qcm-btn { background: var(--surface); border-color: var(--border-dk); color: var(--text); box-shadow: 0 3px 0 var(--shadow-card); }
+[data-theme="dark"] .qcm-btn:hover { background: var(--surface-2); border-color: var(--duo-blue); }
 
 /* ── Dark mode toggle button ─────────────────────────────────────────────── */
 .dark-toggle {

@@ -75,8 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
       window.animateXpBar(xpBarEl, Math.max(0, Math.min(100, Number(data.total_points || 0) % 100)));
     }
 
-    if (succes && data.exact && typeof window.launchConfetti === 'function') {
-      window.launchConfetti(40);
+    if (succes && data.exact) {
+      const lottieWrap = document.getElementById('lottie-success-wrap');
+      const lottiePlayer = document.getElementById('lottie-success');
+      if (lottieWrap && lottiePlayer) {
+        lottieWrap.style.display = 'block';
+        lottiePlayer.play();
+        setTimeout(() => {
+          lottieWrap.style.display = 'none';
+        }, 2500);
+      }
+
+      if (typeof window.launchConfetti === 'function') {
+        window.launchConfetti(40);
+      }
     }
 
     if (!succes && heartsEl && typeof window.loseHeart === 'function') {

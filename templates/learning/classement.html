@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_tags %}
+
+{% block titre %}Classement Global - PROMET{% endblock %}
+
+{% block contenu %}
+<div class="leaderboard-page">
+  <div class="hero">
+    <div class="hero-adlam">𞤕𞤤𞤢𞤧𞤫𞤥𞤫𞤲𞤼</div>
+    <h1>Classement Global</h1>
+    <p>Les meilleurs élèves de la communauté PROMET. Continuez à apprendre pour monter dans le classement !</p>
+  </div>
+
+  <div class="card glass" style="padding: 1.5rem;">
+    <div class="leaderboard-list">
+      {% for p in top_progressions %}
+      <div class="leaderboard-row {% if p.utilisateur == user %}my-rank{% endif %}">
+        <div class="rank-badge rank-{% if p.rang <= 3 %}{{ p.rang }}{% else %}other{% endif %}">
+          {% if p.rang == 1 %}🥇{% elif p.rang == 2 %}🥈{% elif p.rang == 3 %}🥉{% else %}{{ p.rang }}{% endif %}
+        </div>
+        
+        <div class="avatar-sm" style="width:40px; height:40px; border-radius:50%; background:var(--duo-blue); color:white; display:flex; align-items:center; justify-content:center; font-weight:900;">
+          {{ p.utilisateur.username|first|upper }}
+        </div>
+
+        <div class="user-info" style="flex:1">
+          <div style="font-weight:900; font-size:1.1rem">
+            {{ p.utilisateur.username }}
+            {% if p.utilisateur == user %} <span class="badge badge-debutant" style="font-size:0.6rem; vertical-align:middle">VOUS</span>{% endif %}
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-muted)">
+            {{ p.niveau_info.emoji }} {{ p.niveau_info.label }}
+          </div>
+        </div>
+
+        <div class="user-stats" style="text-align:right">
+          <div style="font-weight:900; color:var(--duo-green); font-size:1.2rem">{{ p.points }} XP</div>
+          {% if p.serie_jours > 0 %}
+          <div style="font-size:0.8rem; color:var(--duo-orange); font-weight:800">🔥 {{ p.serie_jours }} jours</div>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <div class="empty-icon">🏜️</div>
+        <p>Aucun utilisateur trouvé.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid transparent;
+}
+.leaderboard-row:hover {
+  transform: scale(1.01);
+  box-shadow: 0 6px 0 var(--border-dk);
+}
+.leaderboard-row.my-rank {
+  border-color: var(--duo-blue);
+  background: #f0f9ff;
+}
+.rank-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.rank-1 { background: var(--duo-yellow); color: #fff; box-shadow: 0 4px 0 var(--duo-yellow-dk); font-size: 1.5rem; }
+.rank-2 { background: #e5e7eb; color: #4b5563; box-shadow: 0 4px 0 #9ca3af; font-size: 1.5rem; }
+.rank-3 { background: #f97316; color: #fff; box-shadow: 0 4px 0 #c2410c; font-size: 1.5rem; }
+.rank-other { background: var(--surface-2); color: var(--text-muted); border: 2px solid var(--border); }
+
+.glass {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-theme="dark"] .glass {
+  background: rgba(30, 30, 30, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+</style>
+{% endblock %}

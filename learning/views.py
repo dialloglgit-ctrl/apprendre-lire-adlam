@@ -1,4 +1,4 @@
-﻿from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -14,6 +14,12 @@ from .models import LettrAdlam, Lecon, Exercice, Progression, NIVEAU_CHOICES, BA
     Annonce, FAQ, Temoignage, ContactMessage, Video
 from .i18n import get_text, normalize_lang
 from .ai_corrector import evaluate_answer as ai_evaluate
+from .transliterator import latin_to_adlam
+import os
+try:
+    import google.generativeai as genai
+except ImportError:
+    genai = None
 
 
 # ── Accueil ────────────────────────────────────────────────────────────────────
@@ -224,6 +230,10 @@ def videos(request):
         ],
     }
 
+    if request.user.is_authenticated:
+        prog, _ = Progression.objects.get_or_create(utilisateur=request.user)
+        prog.debloquer_badge('explorateur_video')
+
     return render(request, 'learning/videos.html', {
         'db_sections':  db_sections,
         'yt_section':   yt_section,
@@ -239,6 +249,10 @@ def livres(request):
         .select_related('lecon')
         .order_by('ordre', '-date_ajout')
     )
+    if request.user.is_authenticated:
+        prog, _ = Progression.objects.get_or_create(utilisateur=request.user)
+        prog.debloquer_badge('bibliophile')
+
     return render(request, 'learning/livres.html', {
         'livres': livres_qs,
         'total_livres': livres_qs.count(),
@@ -373,6 +387,54 @@ def apprendre_ia(request):
     })
 
 
+@require_POST
+def api_chat_gemini(request):
+    """Endpoint pour discuter avec le tuteur IA (Gemini)."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentification requise'}, status=401)
+    
+    data = json.loads(request.body)
+    message = data.get('message', '').strip()
+    
+    if not message:
+        return JsonResponse({'error': 'Message vide'}, status=400)
+    
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key or not genai:
+        # Mock response if no API key or lib missing
+        adlam = latin_to_adlam(message)
+        return JsonResponse({
+            'reply': f"Ceci est une réponse de démonstration (Pulaar Tutor).\nPour une expérience complète, configurez GEMINI_API_KEY.\n\nVous avez dit : {message}",
+            'adlam': adlam
+        })
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    
+    # Context for the tutor
+    prompt = f"""
+    Tu es un tuteur expert de la langue Pulaar et de l'alphabet Adlam. 
+    L'utilisateur est sur la plateforme PROMET pour apprendre.
+    Ton but est d'aider l'utilisateur à apprendre à lire et écrire l'Adlam.
+    L'utilisateur dit : "{message}"
+    Réponds de manière très courte et encourageante (max 3 phrases). 
+    Si l'utilisateur demande une traduction, donne-la.
+    Donne TOUJOURS la version en alphabet Adlam du Pulaar que tu utilises dans ta réponse, à la fin, sur une nouvelle ligne.
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        reply = response.text
+        # Essayer d'extraire l'Adlam ou translittérer la réponse
+        adlam_version = latin_to_adlam(reply)
+        return JsonResponse({
+            'reply': reply,
+            'adlam': adlam_version
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 # ── Compte utilisateur ─────────────────────────────────────────────────────────
 
 def inscription(request):
@@ -427,11 +489,15 @@ def profil(request):
     for code, emj, label, desc in BADGES_DEF:
         if code not in progression.badges:
             badges_locked.append({'code': code, 'emoji': '🔒', 'label': label, 'desc': desc})
+    # Calcul du rang
+    rank = Progression.objects.filter(points__gt=progression.points).count() + 1
+
     return render(request, 'learning/profil.html', {
         'progression': progression,
         'niveau_info': progression.niveau_info,
         'badges_affiches': badges_affiches,
         'badges_locked': badges_locked,
+        'rank': rank,
     })
 
 
@@ -443,6 +509,17 @@ def set_language(request, lang_code):
     response = redirect(next_url)
     response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang)
     return response
+
+
+def classement(request):
+    """Page du classement global des utilisateurs."""
+    top_progressions = Progression.objects.order_by('-points').select_related('utilisateur')[:50]
+    # Marquer le rang
+    for i, p in enumerate(top_progressions):
+        p.rang = i + 1
+    return render(request, 'learning/classement.html', {
+        'top_progressions': top_progressions,
+    })
 
 
 @never_cache

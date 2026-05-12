@@ -33,6 +33,8 @@ BADGES_DEF = [
     ('cent_points',      '⭐', '100 XP',            'Atteindre 100 points'),
     ('cinqcent_points',  '💎', '500 XP',            'Atteindre 500 points'),
     ('alphabet_complet', '👑', 'Alphabet complet',  'Consulter les 28 lettres'),
+    ('explorateur_video', '🎬', 'Explorateur',       'Regarder une vidéo d\'apprentissage'),
+    ('bibliophile',       '📚', 'Bibliophile',      'Consulter la bibliothèque de livres'),
 ]
 
 

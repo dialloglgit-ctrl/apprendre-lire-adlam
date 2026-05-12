@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tableau de bord – PROMET Admin</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 /* ── Reset & base ─────────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -465,10 +469,8 @@ a{color:inherit;text-decoration:none}
               <span>Nouveaux comptes</span>
               <span>Total: {{ stats.users_7d }}</span>
             </div>
-            <div class="wp-trend-bars">
-              {% for value in trends.users_pct %}
-              <span style="height:{{ value }}%"></span>
-              {% endfor %}
+            <div style="height:140px">
+              <canvas id="chart-users"></canvas>
             </div>
             <div class="wp-trend-labels">
               {% for label in trends.labels %}<span>{{ label }}</span>{% endfor %}
@@ -487,10 +489,8 @@ a{color:inherit;text-decoration:none}
               <span>Leçons publiées</span>
               <span>Total: {{ stats.lecons_7d }}</span>
             </div>
-            <div class="wp-trend-bars orange">
-              {% for value in trends.lecons_pct %}
-              <span style="height:{{ value }}%"></span>
-              {% endfor %}
+            <div style="height:140px">
+              <canvas id="chart-lecons"></canvas>
             </div>
             <div class="wp-trend-labels">
               {% for label in trends.labels %}<span>{{ label }}</span>{% endfor %}
@@ -694,7 +694,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18,
 }).addTo(worldMap);
 
-var mapMarkers = [];
+var mapMarkersGroup = L.markerClusterGroup().addTo(worldMap);
 var onlineIcon = L.divIcon({
   html: '<div style="width:14px;height:14px;border-radius:50%;background:#00a32a;border:2px solid #fff;box-shadow:0 0 0 3px rgba(0,163,42,.3)"></div>',
   className: '',
@@ -703,21 +703,19 @@ var onlineIcon = L.divIcon({
 });
 
 function renderMapMarkers(markers) {
-  mapMarkers.forEach(function(m) { worldMap.removeLayer(m); });
-  mapMarkers = [];
+  mapMarkersGroup.clearLayers();
   if (markers.length === 0) return;
   markers.forEach(function(m) {
     var popup = '<b>' + m.label + '</b>';
     if (m.city || m.country) popup += '<br>' + [m.city, m.country].filter(Boolean).join(', ');
-    var mk = L.marker([m.lat, m.lng], {icon: onlineIcon}).addTo(worldMap).bindPopup(popup);
-    mapMarkers.push(mk);
+    var mk = L.marker([m.lat, m.lng], {icon: onlineIcon}).bindPopup(popup);
+    mapMarkersGroup.addLayer(mk);
   });
   // Si des marqueurs, zoomer pour les inclure tous
   if (markers.length === 1) {
     worldMap.setView([markers[0].lat, markers[0].lng], 5);
   } else if (markers.length > 1) {
-    var bounds = L.latLngBounds(markers.map(function(m) { return [m.lat, m.lng]; }));
-    worldMap.fitBounds(bounds, {padding: [40, 40]});
+    worldMap.fitBounds(mapMarkersGroup.getBounds(), {padding: [40, 40]});
   }
 }
 
@@ -799,9 +797,60 @@ renderMapMarkers({{ map_markers|safe }});
   countdownTimer = setInterval(function() {
     secs -= 1;
     if (secs > 0) { countdown(secs); }
+    else { clearInterval(countdownTimer); fetchOnline(); }
   }, 1000);
 
-  setInterval(fetchOnline, INTERVAL);
+  /* ── Chart.js ──────────────────────────────────────────────────────────── */
+  const chartLabels = {{ trends.labels|safe }};
+  const userData = {{ trends.users|safe }};
+  const leconData = {{ trends.lecons|safe }};
+
+  new Chart(document.getElementById('chart-users'), {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Inscriptions',
+        data: userData,
+        borderColor: '#2271b1',
+        backgroundColor: 'rgba(34, 113, 177, 0.1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#8c8f94' }, grid: { color: '#f0f0f1' } },
+        x: { ticks: { color: '#8c8f94' }, grid: { display: false } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('chart-lecons'), {
+    type: 'bar',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Leçons',
+        data: leconData,
+        backgroundColor: '#dba617',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#8c8f94' }, grid: { color: '#f0f0f1' } },
+        x: { ticks: { color: '#8c8f94' }, grid: { display: false } }
+      }
+    }
+  });
 
   // Menu mobile sidebar
   var btn = document.getElementById('sidebar-toggle');

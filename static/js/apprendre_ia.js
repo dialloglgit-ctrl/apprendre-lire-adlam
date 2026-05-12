@@ -301,21 +301,23 @@
     convEnvoyer.textContent = '⏳';
 
     try {
-      // 1. Translittération
-      const translit = await post('/api/v1/transliterer/', { texte, direction: 'auto' });
-      const latin = translit.latin || texte;
-      const adlam = translit.adlam || texte;
+      // 1. Appel au tuteur IA (Gemini)
+      const chat = await post('/api/chat-ia/', { message: texte });
+      if (chat.error) throw new Error(chat.error);
+
+      const reply = chat.reply;
+      const adlam = chat.adlam;
 
       // 2. Afficher le résultat
       $('conv-bubble-user').textContent = texte;
       $('conv-adlam').textContent = adlam;
-      $('conv-latin').textContent = latin;
+      $('conv-latin').textContent = reply;
       convResult.style.display = 'block';
 
       // 3. Audio
       const audioLatin = $('conv-audio-latin');
       const audioAdlam = $('conv-audio-adlam');
-      const audioUrl = apiUrl(`/api/v1/audio/texte/?texte=${encodeURIComponent(latin)}&lang=fr`);
+      const audioUrl = apiUrl(`/api/v1/audio/texte/?texte=${encodeURIComponent(reply)}&lang=fr`);
       audioLatin.dataset.audioUrl = audioUrl;
       audioAdlam.dataset.audioUrl = audioUrl;
 
@@ -323,7 +325,7 @@
       $('conv-correction-row').style.display = 'none';
 
       // 5. Ajouter à l'historique
-      addToHistory(texte, adlam, latin, audioUrl);
+      addToHistory(texte, adlam, reply, audioUrl);
 
       // 6. Vider input
       convInput.value = '';

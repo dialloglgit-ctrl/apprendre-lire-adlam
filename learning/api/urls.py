@@ -36,4 +36,5 @@ urlpatterns = [
 
     # Progression
     path('progression/', views.ProgressionAPIView.as_view(), name='api_progression'),
+    path('chat-ia/', views.api_chat_gemini, name='api_chat_ia_rest'),
 ]

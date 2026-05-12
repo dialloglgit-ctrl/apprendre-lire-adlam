@@ -72,6 +72,8 @@ urlpatterns = [
 
     # Apprendre avec l'IA (lecture, écriture, conversation)
     path('apprendre-ia/', views.apprendre_ia, name='apprendre_ia'),
+    path('classement/', views.classement, name='classement'),
+    path('api/chat-ia/', views.api_chat_gemini, name='api_chat_ia'),
 
     # Compte
     path('compte/inscription/', views.inscription, name='inscription'),

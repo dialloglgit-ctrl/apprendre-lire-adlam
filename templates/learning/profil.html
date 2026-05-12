@@ -37,10 +37,17 @@
     <div class="streak-flame">🔥</div>
     <div>
       <div class="streak-count">{{ progression.serie_jours }} jour{% if progression.serie_jours > 1 %}s{% endif %}</div>
-      <div class="streak-info">Série consécutive d'activité</div>
+      <div class="streak-info">Série consécutive d'activité. Continuez comme ça !</div>
     </div>
   </div>
   {% endif %}
+
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'classement' %}" class="btn btn-warning btn-full" style="display:flex; justify-content: space-between;">
+      <span>🏆 Voir le Classement Global</span>
+      <span>Rang : #{{ rank|default:"—" }}</span>
+    </a>
+  </div>
 
   <!-- Statistiques rapides -->
   <div class="profile-stats">

@@ -274,9 +274,9 @@ def tableau_bord(request):
         },
         'recent_activity': recent_activity,
         'trends': {
-            'labels': day_labels,
-            'users': users_series,
-            'lecons': lecons_series,
+            'labels': json.dumps(day_labels),
+            'users': json.dumps(users_series),
+            'lecons': json.dumps(lecons_series),
             'users_pct': users_series_pct,
             'lecons_pct': lecons_series_pct,
         },
